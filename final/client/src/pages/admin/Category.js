@@ -89,7 +89,7 @@ export default function AdminCategory() {
   return (
     <>
       <Jumbotron
-        title={`Hello ${auth?.user?.name}`}
+        title={`Bienvenido ${auth?.names}`}
         subTitle="Admin Dashboard"
       />
 

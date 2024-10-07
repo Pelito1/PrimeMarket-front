@@ -36,7 +36,7 @@ export default function Register() {
         toast.error(data.error);
       } else {
         localStorage.setItem("auth", JSON.stringify(data));
-        setAuth({ ...auth, token: data.token, user: data.user });
+        setAuth({ ...auth, token: data.token, user: data.user, address: data.address,status: data.status });
         toast.success("Registro exitoso");
         navigate("/dashboard/user");
       }

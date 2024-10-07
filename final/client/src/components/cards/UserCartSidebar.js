@@ -18,10 +18,10 @@ export default function UserCartSidebar() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (auth?.token) {
+    if (auth?.names) {
       getClientToken();
     }
-  }, [auth?.token]);
+  }, [auth?.names]);
 
   const getClientToken = async () => {
     try {
@@ -70,28 +70,28 @@ export default function UserCartSidebar() {
       Total / Dirección / Método de pago
       <hr />
       <h6>Total: {cartTotal()}</h6>
-      {auth?.user?.address ? (
+      {auth?.address ? (
         <>
           <div className="mb-3">
             <hr />
-            <h4>Delivery address:</h4>
-            <h5>{auth?.user?.address}</h5>
+            <h4>Dirección de entrega:</h4>
+            <h5>{auth?.address}</h5>
           </div>
           <button
             className="btn btn-outline-warning"
             onClick={() => navigate("/dashboard/user/profile")}
           >
-            Update address
+            Actualizar dirección
           </button>
         </>
       ) : (
         <div className="mb-3">
-          {auth?.token ? (
+          {auth?.names ? (
             <button
               className="btn btn-outline-warning"
               onClick={() => navigate("/dashboard/user/profile")}
             >
-              Add delivery address
+              Agregar dirección de entrega
             </button>
           ) : (
             <button
@@ -124,7 +124,7 @@ export default function UserCartSidebar() {
             <button
               onClick={handleBuy}
               className="btn btn-primary col-12 mt-2"
-              disabled={!auth?.user?.address || !instance || loading}
+              disabled={!auth?.address || !instance || loading}
             >
               {loading ? "Processing..." : "Buy"}
             </button>

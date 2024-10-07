@@ -15,7 +15,7 @@ export default function Cart() {
   return (
     <>
       <Jumbotron
-        title={`Hola ${auth?.token && auth?.user?.name}`}
+        title={`Bienvenido ${auth?.names && auth?.names}`}
         subTitle={
           cart?.length
             ? `Tu tienes ${cart.length} productos en el carrito. ${

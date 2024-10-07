@@ -27,7 +27,7 @@ export default function UserOrders() {
 
   return (
     <>
-      <Jumbotron title={`Hello ${auth?.user?.name}`} subTitle="Dashboard" />
+      <Jumbotron title={`Hola ${auth?.names}`} subTitle="Dashboard" />
 
       <div className="container-fluid">
         <div className="row">
@@ -35,7 +35,7 @@ export default function UserOrders() {
             <UserMenu />
           </div>
           <div className="col-md-9">
-            <div className="p-3 mt-2 mb-2 h4 bg-light">Orders</div>
+            <div className="p-3 mt-2 mb-2 h4 bg-light">Ordenes</div>
 
             {orders?.map((o, i) => {
               return (

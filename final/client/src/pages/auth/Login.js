@@ -29,16 +29,16 @@ export default function Login() {
         toast.error(data.error);
       } else {
         localStorage.setItem("auth", JSON.stringify(data));
-        setAuth({ ...auth, id: data.id, names: data.names });
+        setAuth({ ...auth, id: data.id, names: data.names,  address: data.address,status: data.status });
         toast.success("Inicio de sesión exitoso");
         navigate(
           location.state ||
-            `/dashboard/${data?.status === 1 ? "admin" : "user"}`
+            `/dashboard/${data?.status == 1 ? "admin" : "user"}`
         );
       }
     } catch (err) {
       //console.log(err);
-      toast.error("Login failed. Try again.");
+      toast.error("Fallo en inicio de sesión. Intente nuevamente.");
     }
   };
 

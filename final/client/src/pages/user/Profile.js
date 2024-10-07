@@ -41,7 +41,7 @@ export default function UserProfile() {
         ls = JSON.parse(ls);
         ls.user = data;
         localStorage.setItem("auth", JSON.stringify(ls));
-        toast.success("Profile updated");
+        toast.success("Perfil actualizado");
       }
     } catch (err) {
       console.log(err);
@@ -50,7 +50,7 @@ export default function UserProfile() {
 
   return (
     <>
-      <Jumbotron title={`Hello ${auth?.user?.name}`} subTitle="Dashboard" />
+      <Jumbotron title={`Hola ${auth?.names}`} subTitle="Dashboard" />
 
       <div className="container-fluid">
         <div className="row">
@@ -58,13 +58,13 @@ export default function UserProfile() {
             <UserMenu />
           </div>
           <div className="col-md-9">
-            <div className="p-3 mt-2 mb-2 h4 bg-light">Profile</div>
+            <div className="p-3 mt-2 mb-2 h4 bg-light">Perfil</div>
 
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
                 className="form-control m-2 p-2"
-                placeholder="Enter your name"
+                placeholder="Ingrese su nombre"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus={true}
@@ -73,7 +73,7 @@ export default function UserProfile() {
               <input
                 type="email"
                 className="form-control m-2 p-2"
-                placeholder="Enter your email"
+                placeholder="Ingrese su correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={true}
@@ -82,19 +82,19 @@ export default function UserProfile() {
               <input
                 type="password"
                 className="form-control m-2 p-2"
-                placeholder="Enter your password"
+                placeholder="Ingrese contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
 
               <textarea
                 className="form-control m-2 p-2"
-                placeholder="Enter your address"
+                placeholder="Ingrese dirección"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
 
-              <button className="btn btn-primary m-2 p-2">Submit</button>
+              <button className="btn btn-primary m-2 p-2">Actualizar datos</button>
             </form>
           </div>
         </div>

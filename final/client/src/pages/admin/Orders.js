@@ -24,8 +24,8 @@ export default function AdminOrders() {
   const [changedStatus, setChangedStatus] = useState("");
 
   useEffect(() => {
-    if (auth?.token) getOrders();
-  }, [auth?.token]);
+    if (auth?.names) getOrders();
+  }, [auth?.names]);
 
   const getOrders = async () => {
     try {
@@ -50,7 +50,7 @@ export default function AdminOrders() {
 
   return (
     <>
-      <Jumbotron title={`Hello ${auth?.user?.name}`} subTitle="Dashboard" />
+      <Jumbotron title={`Hola ${auth?.names}`} subTitle="Dashboard" />
 
       <div className="container-fluid">
         <div className="row">
@@ -58,7 +58,7 @@ export default function AdminOrders() {
             <AdminMenu />
           </div>
           <div className="col-md-9">
-            <div className="p-3 mt-2 mb-2 h4 bg-light">Orders</div>
+            <div className="p-3 mt-2 mb-2 h4 bg-light">Ordenes</div>
 
             {orders?.map((o, i) => {
               return (

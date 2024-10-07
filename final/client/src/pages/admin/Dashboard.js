@@ -9,7 +9,7 @@ export default function AdminDashboard() {
   return (
     <>
       <Jumbotron
-        title={`Hello ${auth?.user?.name}`}
+        title={`Bienvenido ${auth?.names}`}
         subTitle="Admin Dashboard"
       />
 
@@ -22,8 +22,8 @@ export default function AdminDashboard() {
             <div className="p-3 mt-2 mb-2 h4 bg-light">Admin Information</div>
 
             <ul className="list-group">
-              <li className="list-group-item">{auth?.user?.name}</li>
-              <li className="list-group-item">{auth?.user?.email}</li>
+              <li className="list-group-item">{auth?.names}</li>
+              <li className="list-group-item">{auth?.address}</li>
               <li className="list-group-item">Admin</li>
             </ul>
           </div>

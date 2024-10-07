@@ -8,7 +8,7 @@ export default function UserDashboard() {
 
   return (
     <>
-      <Jumbotron title={`Hello ${auth?.user?.name}`} subTitle="Dashboard" />
+      <Jumbotron title={`Hola ${auth?.names}`} subTitle="Dashboard" />
 
       <div className="container-fluid">
         <div className="row">
@@ -16,11 +16,11 @@ export default function UserDashboard() {
             <UserMenu />
           </div>
           <div className="col-md-9">
-            <div className="p-3 mt-2 mb-2 h4 bg-light">User Information</div>
+            <div className="p-3 mt-2 mb-2 h4 bg-light"> Información de Usuario</div>
 
             <ul className="list-group">
-              <li className="list-group-item">{auth?.user?.name}</li>
-              <li className="list-group-item">{auth?.user?.email}</li>
+              <li className="list-group-item">{auth?.names}</li>
+              <li className="list-group-item">{auth?.address}</li>
             </ul>
           </div>
         </div>

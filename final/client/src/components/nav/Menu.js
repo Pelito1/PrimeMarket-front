@@ -17,7 +17,7 @@ export default function Menu() {
   // console.log("categories in menu => ", categories);
 
   const logout = () => {
-    setAuth({ ...auth, names: null, id: "" });
+    setAuth({ ...auth, id: null, names: "" ,address: "",status: null });
     localStorage.removeItem("auth");
     navigate("/login");
   };
@@ -84,7 +84,7 @@ export default function Menu() {
 
         <Search />
 
-        {!auth?.names ? (
+        {!auth?.id ? (
           <>
             <li className="nav-item">
               <NavLink className="nav-link" to="/login">
@@ -112,7 +112,7 @@ export default function Menu() {
                   <NavLink
                     className="nav-link"
                     to={`/dashboard/${
-                      auth?.status === 1 ? "admin" : "user"
+                      auth?.status == 1 ? "admin" : "user"
                     }`}
                   >
                     Dashboard
@@ -121,7 +121,7 @@ export default function Menu() {
 
                 <li className="nav-item pointer">
                   <a onClick={logout} className="nav-link">
-                    Logout
+                    Cerrar sesión
                   </a>
                 </li>
               </ul>
