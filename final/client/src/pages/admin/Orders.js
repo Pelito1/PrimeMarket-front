@@ -6,6 +6,7 @@ import axios from "axios";
 import moment from "moment";
 import ProductCardHorizontal from "../../components/cards/ProductCardHorizontal";
 import { Select } from "antd";
+import instance from "../axios/axiosInstance";
 
 const { Option } = Select;
 
@@ -29,7 +30,7 @@ export default function AdminOrders() {
 
   const getOrders = async () => {
     try {
-      const { data } = await axios.get("/all-orders");
+      const { data } = await instance.get("/all-orders");
       setOrders(data);
     } catch (err) {
       console.log(err);
@@ -39,7 +40,7 @@ export default function AdminOrders() {
   const handleChange = async (orderId, value) => {
     setChangedStatus(value);
     try {
-      const { data } = await axios.put(`/order-status/${orderId}`, {
+      const { data } = await instance.put(`/order-status/${orderId}`, {
         status: value,
       });
       getOrders();

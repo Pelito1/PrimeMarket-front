@@ -2,6 +2,9 @@ import { Badge } from "antd";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/cart";
+import {
+  FaCartPlus
+} from "react-icons/fa";
 
 export default function ProductCard({ p }) {
   // context
@@ -66,7 +69,7 @@ export default function ProductCard({ p }) {
             toast.success("Agregado a carrito");
           }}
         >
-          Agregar a carrito
+          Agregar a carrito  <FaCartPlus fontSize="large"/>
         </button>
       </div>
 

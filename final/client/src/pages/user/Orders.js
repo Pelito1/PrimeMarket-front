@@ -5,6 +5,7 @@ import UserMenu from "../../components/nav/UserMenu";
 import axios from "axios";
 import moment from "moment";
 import ProductCardHorizontal from "../../components/cards/ProductCardHorizontal";
+import instance from "../axios/axiosInstance";
 
 export default function UserOrders() {
   // context
@@ -18,7 +19,7 @@ export default function UserOrders() {
 
   const getOrders = async () => {
     try {
-      const { data } = await axios.get("/orders");
+      const { data } = await instance.get("/orders");
       setOrders(data);
     } catch (err) {
       console.log(err);

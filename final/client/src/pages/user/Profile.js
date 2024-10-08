@@ -4,6 +4,7 @@ import Jumbotron from "../../components/cards/Jumbotron";
 import UserMenu from "../../components/nav/UserMenu";
 import axios from "axios";
 import toast from "react-hot-toast";
+import instance from "../axios/axiosInstance";
 
 export default function UserProfile() {
   // context
@@ -26,7 +27,7 @@ export default function UserProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.put("/profile", {
+      const { data } = await instance.put("/profile", {
         name,
         password,
         address,

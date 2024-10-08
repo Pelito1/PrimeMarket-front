@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Jumbotron from "../components/cards/Jumbotron";
 import axios from "axios";
+import instance from "./axios/axiosInstance";
 import ProductCard from "../components/cards/ProductCard";
 import { Checkbox, Radio } from "antd";
 import { prices } from "../prices";
@@ -21,7 +22,7 @@ export default function Shop() {
 
   const loadFilteredProducts = async () => {
     try {
-      const { data } = await axios.post("/filtered-products", {
+      const { data } = await instance.post("/filtered-products", {
         checked,
         radio,
       });
@@ -34,7 +35,7 @@ export default function Shop() {
 
   const loadProducts = async () => {
     try {
-      const { data } = await axios.get("/products");
+      const { data } = await instance.get("/products");
       setProducts(data);
     } catch (err) {
       console.log(err);
@@ -47,7 +48,7 @@ export default function Shop() {
 
   const loadCatgories = async () => {
     try {
-      const { data } = await axios.get("/categories");
+      const { data } = await instance.get("/categories");
       setCategories(data);
     } catch (err) {
       console.log(err);

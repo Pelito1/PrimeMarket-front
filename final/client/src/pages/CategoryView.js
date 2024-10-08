@@ -3,6 +3,7 @@ import Jumbotron from "../components/cards/Jumbotron";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import ProductCard from "../components/cards/ProductCard";
+import instance from "./axios/axiosInstance";
 
 export default function CategoryView() {
   // state
@@ -18,7 +19,7 @@ export default function CategoryView() {
 
   const loadProductsByCatgory = async () => {
     try {
-      const { data } = await axios.get(`/products-by-category/${params.slug}`);
+      const { data } = await instance.get(`/products-by-category/${params.slug}`);
       setCategory(data.category);
       setProducts(data.products);
     } catch (err) {

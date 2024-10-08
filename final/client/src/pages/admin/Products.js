@@ -5,6 +5,7 @@ import AdminMenu from "../../components/nav/AdminMenu";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import instance from "../axios/axiosInstance";
 
 export default function AdminProducts() {
   // context
@@ -18,7 +19,7 @@ export default function AdminProducts() {
 
   const loadProducts = async () => {
     try {
-      const { data } = await axios.get("/products");
+      const { data } = await instance.get("/products");
       setProducts(data);
     } catch (err) {
       console.log(err);
@@ -37,7 +38,7 @@ export default function AdminProducts() {
           <div className="col-md-3">
             <AdminMenu />
           </div>
-          <div className="col-md-9">
+          <div className="col-md-6">
             <div className="p-3 mt-2 mb-2 h4 bg-light">Productos</div>
 
             {products?.map((p) => (
@@ -53,7 +54,7 @@ export default function AdminProducts() {
                         src={p.image}
                         alt={p.name}
                         className="img img-fluid rounded-start"
-                        style={{height: "200px",objectFit: "cover" }}
+                        style={{height: "175px",objectFit: "cover" }}
                       />
                     </div>
 
@@ -61,7 +62,13 @@ export default function AdminProducts() {
                       <div className="card-body">
                         <h5 className="card-title">{p?.name}</h5>
                         <p className="card-text">
-                          {p?.description?.substring(0, 160)}...
+                          {p?.description?.substring(0, 160)}
+                        </p>
+                        <p className="card-text">
+                          Q{p?.price}
+                        </p>
+                        <p className="card-text"> 
+                          Marca:{p.brand}
                         </p>
                         <p className="card-text">
                           <small className="text-muted">

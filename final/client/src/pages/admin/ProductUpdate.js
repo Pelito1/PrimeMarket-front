@@ -6,6 +6,7 @@ import axios from "axios";
 import { Select } from "antd";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import instance from "../axios/axiosInstance";
 
 const { Option } = Select;
 
@@ -36,7 +37,7 @@ export default function AdminProductUpdate() {
 
   const loadCategories = async () => {
     try {
-      const { data } = await axios.get("/categories");
+      const { data } = await instance.get("/categories");
       setCategories(data);
     } catch (err) {
       console.log(err);
@@ -45,7 +46,7 @@ export default function AdminProductUpdate() {
 
   const loadProduct = async () => {
     try {
-      const { data } = await axios.get(`/product/${params.slug}`);
+      const { data } = await instance.get(`/product/${params.slug}`);
       setName(data.name);
       setDescription(data.description);
       setPrice(data.price);
@@ -70,7 +71,7 @@ export default function AdminProductUpdate() {
       productData.append("shipping", shipping);
       productData.append("quantity", quantity);
 
-      const { data } = await axios.put(`/product/${id}`, productData);
+      const { data } = await instance.put(`/product/${id}`, productData);
       if (data?.error) {
         toast.error(data.error);
       } else {
@@ -89,7 +90,7 @@ export default function AdminProductUpdate() {
         "Are you sure you want to delete this product?"
       );
       if (!answer) return;
-      const { data } = await axios.delete(`/product/${id}`);
+      const { data } = await instance.delete(`/product/${id}`);
       toast.success(`"${data.name}" is deleted`);
       navigate("/dashboard/admin/products");
     } catch (err) {

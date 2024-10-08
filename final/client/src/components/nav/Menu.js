@@ -5,6 +5,18 @@ import Search from "../forms/Search";
 import useCategory from "../../hooks/useCategory";
 import { useCart } from "../../context/cart";
 import { Badge } from "antd";
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import {
+  FaHome,
+  FaStoreAlt,
+  FaList,
+  FaCartPlus,
+  FaUser,
+  FaDoorOpen,
+  FaClipboard,
+  FaPen,
+  FaKey
+} from "react-icons/fa";
 
 export default function Menu() {
   // context
@@ -30,13 +42,13 @@ export default function Menu() {
            {/*
            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2zwjB9-QOTXLPmmBFgrG4WadlJH-g9qFPRQ&s"  width="70" height="20"/>
             */}
-            INICIO
+           <FaHome fontSize="large"/> INICIO 
           </NavLink>
         </li>
 
         <li className="nav-item">
           <NavLink className="nav-link" aria-current="page" to="/shop">
-            TIENDA
+          <FaStoreAlt fontSize="large"/> TIENDA
           </NavLink>
         </li>
 
@@ -46,7 +58,7 @@ export default function Menu() {
               className="nav-link pointer dropdown-toggle"
               data-bs-toggle="dropdown"
             >
-              CATEGORIAS
+              <FaList fontSize="large"/> CATEGORIAS 
             </a>
 
             <ul
@@ -77,7 +89,7 @@ export default function Menu() {
             showZero={true}
           >
             <NavLink className="nav-link" aria-current="page" to="/cart">
-              CARRITO
+            <FaCartPlus fontSize="large"/> CARRITO
             </NavLink>
           </Badge>
         </li>
@@ -88,12 +100,12 @@ export default function Menu() {
           <>
             <li className="nav-item">
               <NavLink className="nav-link" to="/login">
-                INICIAR SESION
+              <FaKey fontSize="large"/> INICIAR SESION
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink className="nav-link" to="/register">
-                REGISTRO
+              <FaPen fontSize="large"/>  REGISTRO
               </NavLink>
             </li>
           </>
@@ -104,7 +116,7 @@ export default function Menu() {
                 className="nav-link pointer dropdown-toggle"
                 data-bs-toggle="dropdown"
               >
-                {auth?.names?.toUpperCase()}
+              <FaUser fontSize="large"/> {auth?.names?.toUpperCase()}
               </a>
 
               <ul className="dropdown-menu">
@@ -115,13 +127,13 @@ export default function Menu() {
                       auth?.status == 1 ? "admin" : "user"
                     }`}
                   >
-                    Dashboard
+                   <FaClipboard   fontSize="large"/> Dashboard
                   </NavLink>
                 </li>
 
                 <li className="nav-item pointer">
                   <a onClick={logout} className="nav-link">
-                    Cerrar sesión
+                  <FaDoorOpen fontSize="large"/> Cerrar sesión
                   </a>
                 </li>
               </ul>

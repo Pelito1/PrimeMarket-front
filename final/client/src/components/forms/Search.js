@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useSearch } from "../../context/search";
 import { useNavigate } from "react-router-dom";
+import instance from "../../pages/axios/axiosInstance";
 
 export default function Search() {
   // hooks
@@ -10,7 +11,7 @@ export default function Search() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.get(`/products/search/${values?.keyword}`);
+      const { data } = await instance.get(`/products/search/${values?.keyword}`);
       // console.log(data);
       setValues({ ...values, results: data });
       navigate("/search");

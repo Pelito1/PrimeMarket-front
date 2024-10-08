@@ -4,6 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/auth";
 import { useNavigate } from "react-router-dom";
+import instance from "../axios/axiosInstance";
 
 export default function Register() {
   // state
@@ -22,7 +23,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(`/register`, {
+      const { data } = await instance.post(`/register`, {
         names,
         lastNames,
         phoneNumber,

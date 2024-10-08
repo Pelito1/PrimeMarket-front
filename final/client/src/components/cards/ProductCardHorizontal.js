@@ -1,5 +1,11 @@
 import moment from "moment";
 import { useCart } from "../../context/cart";
+import {
+  FaProjectDiagram,
+  FaTrash,
+  FaTrashAlt,
+  
+} from "react-icons/fa";
 
 export default function ProductCardHorizontal({ p, remove = true }) {
   // context
@@ -25,7 +31,7 @@ export default function ProductCardHorizontal({ p, remove = true }) {
             src={p.image}
             alt={p.name}
             style={{
-              height: "150px",
+              height: "100px",
               width: "150px",
               objectFit: "cover",
               marginLeft: "-12px",
@@ -60,7 +66,7 @@ export default function ProductCardHorizontal({ p, remove = true }) {
               className="text-danger mb-2 pointer"
               onClick={() => removeFromCart(p._id)}
             >
-              Eliminar
+              Eliminar  <FaTrashAlt fontSize="large"/>
             </p>
           )}
         </div>

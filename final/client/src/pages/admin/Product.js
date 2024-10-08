@@ -6,6 +6,7 @@ import axios from "axios";
 import { Select } from "antd";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import instance from "../axios/axiosInstance";
 
 const { Option } = Select;
 
@@ -30,7 +31,7 @@ export default function AdminProduct() {
 
   const loadCategories = async () => {
     try {
-      const { data } = await axios.get("/categories");
+      const { data } = await instance.get("/categories");
       setCategories(data);
     } catch (err) {
       console.log(err);
@@ -49,7 +50,7 @@ export default function AdminProduct() {
       productData.append("shipping", shipping);
       productData.append("quantity", quantity);
 
-      const { data } = await axios.post("/product", productData);
+      const { data } = await instance.post("/product", productData);
       if (data?.error) {
         toast.error(data.error);
       } else {

@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../context/auth";
 import Jumbotron from "../../components/cards/Jumbotron";
 import AdminMenu from "../../components/nav/AdminMenu";
-import axios from "axios";
 import toast from "react-hot-toast";
 import CategoryForm from "../../components/forms/CategoryForm";
 import { Modal } from "antd";
+import instance from "../axios/axiosInstance";
 
 export default function AdminCategory() {
   // context
@@ -23,7 +23,7 @@ export default function AdminCategory() {
 
   const loadCategories = async () => {
     try {
-      const { data } = await axios.get("/categories");
+      const { data } = await instance.get("/categories");
       setCategories(data);
     } catch (err) {
       console.log(err);
@@ -33,7 +33,7 @@ export default function AdminCategory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("/category", { name });
+      const { data } = await instance.post("/category", { name });
       if (data?.error) {
         toast.error(data.error);
       } else {
@@ -50,7 +50,7 @@ export default function AdminCategory() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.put(`/category/${selected._id}`, {
+      const { data } = await instance.put(`/category/${selected._id}`, {
         name: updatingName,
       });
       if (data?.error) {
@@ -71,7 +71,7 @@ export default function AdminCategory() {
   const handleDelete = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.delete(`/category/${selected._id}`);
+      const { data } = await instance.delete(`/category/${selected._id}`);
       if (data?.error) {
         toast.error(data.error);
       } else {
