@@ -56,7 +56,7 @@ export default function ProductView() {
       <div className="row">
         <div className="col-md-9">
           <div className="card mb-3">
-            <Badge.Ribbon text={`${product?.sold} vendidos`} color="red">
+            <Badge.Ribbon text={`${product?.sold} 45vendidos`} color="red">
               <Badge.Ribbon
                 text={`${
                   product?.quantity >= 1

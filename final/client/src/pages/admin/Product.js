@@ -65,7 +65,7 @@ export default function AdminProduct() {
   return (
     <>
       <Jumbotron
-        title={`Hello ${auth?.user?.name}`}
+        title={`Hola ${auth?.names}`}
         subTitle="Admin Dashboard"
       />
 

@@ -28,7 +28,7 @@ export default function AdminProducts() {
   return (
     <>
       <Jumbotron
-        title={`Hello ${auth?.user?.name}`}
+        title={`Hola ${auth?.names}`}
         subTitle="Admin Dashboard"
       />
 
@@ -38,7 +38,7 @@ export default function AdminProducts() {
             <AdminMenu />
           </div>
           <div className="col-md-9">
-            <div className="p-3 mt-2 mb-2 h4 bg-light">Products</div>
+            <div className="p-3 mt-2 mb-2 h4 bg-light">Productos</div>
 
             {products?.map((p) => (
               <Link
@@ -49,9 +49,11 @@ export default function AdminProducts() {
                   <div className="row g-0">
                     <div className="col-md-4">
                       <img
-                        src={`${process.env.REACT_APP_API}/product/photo/${p._id}`}
+                        //src={`${process.env.REACT_APP_API}/product/photo/${p._id}`}
+                        src={p.image}
                         alt={p.name}
                         className="img img-fluid rounded-start"
+                        style={{height: "200px",objectFit: "cover" }}
                       />
                     </div>
 

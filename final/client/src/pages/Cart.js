@@ -19,7 +19,7 @@ export default function Cart() {
         subTitle={
           cart?.length
             ? `Tu tienes ${cart.length} productos en el carrito. ${
-                auth?.token ? "" : "Por favor, inicia sesión para proceder al pago."
+                auth?.names ? "" : "Por favor, inicia sesión para proceder al pago."
               }`
             : "El carrito está vacío"
         }

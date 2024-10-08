@@ -13,8 +13,8 @@ export default function UserOrders() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    if (auth?.token) getOrders();
-  }, [auth?.token]);
+    if (auth?.names) getOrders();
+  }, [auth?.names]);
 
   const getOrders = async () => {
     try {

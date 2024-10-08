@@ -121,7 +121,7 @@ export default function Shop() {
               style={{ height: "100vh", overflow: "scroll" }}
             >
               {products?.map((p) => (
-                <div className="col-md-4" key={p._id}>
+                <div className="col-md-3" key={p._id}>
                   <ProductCard p={p} />
                 </div>
               ))}
