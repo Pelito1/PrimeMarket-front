@@ -14,7 +14,7 @@ export default function ProductCard({ p }) {
 
   return (
     <div className="card mb-3 hoverable"
-    onClick={() => navigate(`/product/${p.slug}`)}
+    onClick={() => navigate(`/product/${p.id}`)}
     style={{ cursor: "pointer" }}
     >
       

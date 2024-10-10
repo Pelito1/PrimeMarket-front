@@ -10,33 +10,45 @@ export default function UserProfile() {
   // context
   const [auth, setAuth] = useAuth();
   // state
-  const [name, setName] = useState("");
+  const [names, setName] = useState("");
+  const [lastNames, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
 
   useEffect(() => {
-    if (auth?.user) {
-      const { name, email, address } = auth.user;
-      setName(name);
-      setEmail(email);
-      setAddress(address);
+    if (auth?.names) {
+     // const { name, email, address } = auth.user;
+      setName(auth?.names);
+      setLastName(auth?.lastNames)
+      setEmail(auth?.email);
+      setAddress(auth?.address);
+      setPhoneNumber(auth?.phoneNumber);
+
     }
-  }, [auth?.user]);
+  }, [auth?.names]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await instance.put("/profile", {
-        name,
-        password,
-        address,
-      });
+        // Hacer el PUT y registrar la respuesta en la consola
+    console.log(await instance.put(`/customers/${auth?.id}`, {
+      names,
+      lastNames,
+      phoneNumber,
+      address,
+      password,
+      
+    }));
+
+     // Realizar un GET para obtener el cliente actualizado
+    const { data } = await instance.get(`/customers/${auth?.id}`);
 
       if (data?.error) {
         toast.error(data.error);
       } else {
-        setAuth({ ...auth, user: data });
+        setAuth({ ...auth,  id: data.id, names: data.names,  address: data.address,status: data.status,email: data.email });
         // local storage update
         let ls = localStorage.getItem("auth");
         ls = JSON.parse(ls);
@@ -59,16 +71,24 @@ export default function UserProfile() {
             <UserMenu />
           </div>
           <div className="col-md-9">
-            <div className="p-3 mt-2 mb-2 h4 bg-light">Perfil</div>
+            <div className="p-3 mt-2 mb-2 h4 bg-light">Editar Perfil</div>
 
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
                 className="form-control m-2 p-2"
                 placeholder="Ingrese su nombre"
-                value={name}
+                value={names}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus={true}
+              />
+
+              <input
+                type="text"
+                className="form-control m-2 p-2"
+                placeholder="Ingrese su apellidos"
+                value={lastNames}
+                onChange={(e) => setLastName(e.target.value)}
               />
 
               <input
@@ -86,6 +106,7 @@ export default function UserProfile() {
                 placeholder="Ingrese contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
 
               <textarea
@@ -93,6 +114,14 @@ export default function UserProfile() {
                 placeholder="Ingrese dirección"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
+              />
+
+              <input
+                type="text"
+                className="form-control m-2 p-2"
+                placeholder="Ingrese su telefono"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
               />
 
               <button className="btn btn-primary m-2 p-2">Actualizar datos</button>

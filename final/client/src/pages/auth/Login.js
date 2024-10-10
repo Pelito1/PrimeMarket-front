@@ -8,8 +8,8 @@ import instance from "../axios/axiosInstance";
 
 export default function Login() {
   // state
-  const [email, setEmail] = useState("fgsfdgsdfh@gmail.com");
-  const [password, setPassword] = useState("rrrr");
+  const [email, setEmail] = useState("cruz@gmail.com");
+  const [password, setPassword] = useState("1234567");
   // hook
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
@@ -20,16 +20,18 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await instance.get(`/`);//, //{
-       // email,
-       // password,
-    //  });
+      const { data } = await instance.post(`/customers/login`, {
+        email,
+        password,
+     });
       console.log(data);
       if (data?.error) {
         toast.error(data.error);
       } else {
         localStorage.setItem("auth", JSON.stringify(data));
-        setAuth({ ...auth, id: data.id, names: data.names,  address: data.address,status: data.status });
+        setAuth({ ...auth, id: data.id, names: data.names, lastNames: data.lastNames,
+          phoneNumber: data.phoneNumber,
+          address: data.address,status: data.status,email: data.email });
         toast.success("Inicio de sesión exitoso");
         navigate(
           location.state ||

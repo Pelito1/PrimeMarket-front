@@ -1,8 +1,6 @@
 import moment from "moment";
 import { useCart } from "../../context/cart";
 import {
-  FaProjectDiagram,
-  FaTrash,
   FaTrashAlt,
   
 } from "react-icons/fa";
@@ -13,7 +11,7 @@ export default function ProductCardHorizontal({ p, remove = true }) {
 
   const removeFromCart = (productId) => {
     let myCart = [...cart];
-    let index = myCart.findIndex((item) => item._id === productId);
+    let index = myCart.findIndex((item) => item.id === productId);
     myCart.splice(index, 1);
     setCart(myCart);
     localStorage.setItem("cart", JSON.stringify(myCart));
@@ -52,6 +50,7 @@ export default function ProductCardHorizontal({ p, remove = true }) {
               0,
               50
             )}..`}</p>
+            <p className="card-text ">Disponible: {p.stock} unidades </p>
           </div>
         </div>
 
@@ -64,7 +63,7 @@ export default function ProductCardHorizontal({ p, remove = true }) {
           {remove && (
             <p
               className="text-danger mb-2 pointer"
-              onClick={() => removeFromCart(p._id)}
+              onClick={() => removeFromCart(p.id)}
             >
               Eliminar  <FaTrashAlt fontSize="large"/>
             </p>

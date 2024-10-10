@@ -19,8 +19,10 @@ export default function UserDashboard() {
             <div className="p-3 mt-2 mb-2 h4 bg-light"> Información de Usuario</div>
 
             <ul className="list-group">
-              <li className="list-group-item">{auth?.names}</li>
-              <li className="list-group-item">{auth?.address}</li>
+            <li className="list-group-item">Nombres: {auth?.names}</li>
+              <li className="list-group-item">Apellidos: {auth?.lastNames}</li>
+              <li className="list-group-item">Celular: {auth?.phoneNumber}</li>
+              <li className="list-group-item">Dirección: {auth?.address}</li>
             </ul>
           </div>
         </div>

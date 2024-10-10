@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Jumbotron from "../components/cards/Jumbotron";
-import axios from "axios";
+//import axios from "axios";
 import instance from "./axios/axiosInstance";
 import ProductCard from "../components/cards/ProductCard";
 import { Checkbox, Radio } from "antd";

@@ -7,8 +7,11 @@ const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({
     id: null,
     names: "",
+    lastNames: "",
+    phoneNumber: null,
     address: "",
     status:null,
+    email:""
   });
 
   // axios config
@@ -19,7 +22,9 @@ const AuthProvider = ({ children }) => {
     const data = localStorage.getItem("auth");
     if (data) {
       const parsed = JSON.parse(data);
-      setAuth({ ...auth, id: parsed.id, names: parsed.names, address: parsed.address,status: parsed.status });
+      setAuth({ ...auth, id: parsed.id, names: parsed.names, 
+        lastNames: parsed.lastNames, phoneNumber: parsed.phoneNumber,
+        address: parsed.address,status: parsed.status,email: parsed.email });
     }
   }, []);
 

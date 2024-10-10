@@ -19,12 +19,14 @@ export default function AdminDashboard() {
             <AdminMenu />
           </div>
           <div className="col-md-9">
-            <div className="p-3 mt-2 mb-2 h4 bg-light">Admin Information</div>
+            <div className="p-3 mt-2 mb-2 h4 bg-light">Admin Información</div>
 
             <ul className="list-group">
-              <li className="list-group-item">{auth?.names}</li>
-              <li className="list-group-item">{auth?.address}</li>
-              <li className="list-group-item">Admin</li>
+              <li className="list-group-item">Nombres: {auth?.names}</li>
+              <li className="list-group-item">Apellidos: {auth?.lastNames}</li>
+              <li className="list-group-item">Celular: {auth?.phoneNumber}</li>
+              <li className="list-group-item">Dirección: {auth?.address}</li>
+              <li className="list-group-item ">Administrador</li>
             </ul>
           </div>
         </div>

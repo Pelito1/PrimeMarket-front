@@ -8,7 +8,7 @@ export default function UserMenu() {
       <ul className="list-group list-unstyled">
         <li>
           <NavLink className="list-group-item" to="/dashboard/user/profile">
-            Perfil
+            Editar Perfil
           </NavLink>
         </li>
 

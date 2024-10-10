@@ -23,7 +23,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await instance.post(`/register`, {
+      const { data } = await instance.post(`/customers`, {
         names,
         lastNames,
         phoneNumber,
@@ -37,7 +37,10 @@ export default function Register() {
         toast.error(data.error);
       } else {
         localStorage.setItem("auth", JSON.stringify(data));
-        setAuth({ ...auth, token: data.token, user: data.user, address: data.address,status: data.status });
+        setAuth({ ...auth, id: data.id, names: data.names, 
+          lastNames: data.lastNames,
+          phoneNumber: data.phoneNumber,
+          address: data.address,status: data.status,email: data.email  });
         toast.success("Registro exitoso");
         navigate("/dashboard/user");
       }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import moment from "moment";
+//import moment from "moment";
+import Jumbotron from "../components/cards/Jumbotron";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Badge } from "antd";
@@ -33,7 +34,7 @@ export default function ProductView() {
   const loadProduct = async (req, res) => {
     try {
       //const { data } = await axios.get(`/product/${params.slug}`);
-      const { data } = await instance.get(`/products/1`);
+      const { data } = await instance.get(`/products/${params.slug}`);
       setProduct(data);
       loadRelated(data.id, data.category._id);
     } catch (err) {
@@ -53,9 +54,12 @@ export default function ProductView() {
   };
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid bg-light">
+      <Jumbotron title="PrimeMarket" subTitle="Bienvenidos a nuestra Tienda en línea"/>
       <div className="row">
-        <div className="col-md-6">
+
+       {/* Espacio vacío a la izquierda */} <div className="col-md-2"></div>
+        <div className="col-md-5 p-3">
           <div className="card mb-3">
             {/*<Badge.Ribbon text={`${product?.sold} 45vendidos`} color="red">*/}
               <Badge.Ribbon
@@ -78,13 +82,12 @@ export default function ProductView() {
            {/* </Badge.Ribbon>*/} 
 
             <div className="card-body">
-              <h1 className="fw-bold">{product?.name}</h1>
-              <p className="card-text lead">{product?.description}</p>
+              <h1 className="fw-bold mb-1">{product?.name}</h1>
+              <p className="card-text lead mb-2">{product?.description}</p>
             </div>
-
-            <div className="d-flex justify-content-between lead p-5 bg-light fw-bold">
+            <div className="d-flex justify-content-between lead p-4 bg-light fw-bold">
               <div>
-                <p>
+                <p className="mb-1">
                   <FaMoneyBill/> Precio:{" "}
                   {product?.price?.toLocaleString("en-US", {
                     style: "currency",
@@ -92,15 +95,15 @@ export default function ProductView() {
                   })}
                 </p>
 
-                <p>
+                <p className="mb-1">
                   <FaProjectDiagram /> Categoria: {product?.category?.name}
                 </p>
 
-                <p>
-                  <FaBarcode /> Marca: {product.brand}
+                <p className="mb-1">
+                  <FaBarcode /> Marca: {product?.brand?.name}
                 </p>
 
-                <p>
+                <p className="mb-1">
                   <FaWarehouse /> Disponible {product?.stock} existencias  {product?.stock > 0 ? <FaCheck /> : <FaTimes />}{" "} 
                 </p>
               </div>
@@ -121,8 +124,9 @@ export default function ProductView() {
             </button>
           </div>
         </div>
-
-        <div className="col-md-3">
+{/* Espacio vacío a la izquierda */}
+<div className="col-md-1"></div>
+        <div className="col-md-4  p-3">
           <h2>Productos Relacionados</h2>
           <hr />
           {related?.length < 1 && <p>Ningun resultado</p>}

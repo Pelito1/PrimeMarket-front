@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/auth";
 import { useCart } from "../../context/cart";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+//import axios from "axios";
 import DropIn from "braintree-web-drop-in-react";
 import toast from "react-hot-toast";
+import instance from "../../pages/axios/axiosInstance";
 
 export default function UserCartSidebar() {
   // context
@@ -12,7 +13,7 @@ export default function UserCartSidebar() {
   const [cart, setCart] = useCart();
   // state
   const [clientToken, setClientToken] = useState("");
-  const [instance, setInstance] = useState("");
+  const [instance2, setInstance] = useState("");
   const [loading, setLoading] = useState(false);
   // hooks
   const navigate = useNavigate();
@@ -25,8 +26,9 @@ export default function UserCartSidebar() {
 
   const getClientToken = async () => {
     try {
-      const { data } = await instance.get("/braintree/token");
-      setClientToken(data.clientToken);
+      //const { data } = await instance.get("/braintree/token");
+      //setClientToken(data.clientToken);
+      setClientToken("True");
     } catch (err) {
       console.log(err);
     }
@@ -46,7 +48,7 @@ export default function UserCartSidebar() {
   const handleBuy = async () => {
     try {
       setLoading(true);
-      const { nonce } = await instance.requestPaymentMethod();
+      const { nonce } = await instance2.requestPaymentMethod();
       //   console.log("nonce => ", nonce);
       const { data } = await instance.post("/braintree/payment", {
         nonce,
@@ -107,26 +109,26 @@ export default function UserCartSidebar() {
           )}
         </div>
       )}
+      <div>{JSON.stringify(clientToken)}</div>
       <div className="mt-3">
-        {!clientToken || !cart?.length ? (
+       {/* {!clientToken || !cart?.length ? (*/}
+       {!cart?.length ? (
           ""
         ) : (
           <>
             <DropIn
               options={{
-                authorization: clientToken,
-                paypal: {
-                  flow: "vault",
-                },
+                authorization: true,
+                
               }}
-              onInstance={(instance) => setInstance(instance)}
+              //onInstance={(instance2) => setInstance(instance2)}
             />
             <button
               onClick={handleBuy}
               className="btn btn-primary col-12 mt-2"
-              disabled={!auth?.address || !instance || loading}
+              disabled={!auth?.address  || loading}
             >
-              {loading ? "Processing..." : "Buy"}
+              {loading ? "Processing..." : "Comprar"}
             </button>
           </>
         )}
