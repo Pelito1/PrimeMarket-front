@@ -25,7 +25,7 @@ export default function CategoryView() {
      if (data && data.length > 0) {
       const { data } = await instance.get(`/categories/${params.slug}`);
       setCategory(data);
-      console.log(category);
+     // console.log(category);
   }
     } catch (err) {
       console.log(err);
@@ -42,7 +42,7 @@ export default function CategoryView() {
       <div className="container-fluid">
         <div className="row mt-3">
           {products?.map((p) => (
-            <div key={p._id} className="col-md-3">
+            <div key={p.id} className="col-md-3">
               <ProductCard p={p} />
             </div>
           ))}
