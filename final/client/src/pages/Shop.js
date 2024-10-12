@@ -1,132 +1,122 @@
 import { useState, useEffect } from "react";
 import Jumbotron from "../components/cards/Jumbotron";
-//import axios from "axios";
 import instance from "./axios/axiosInstance";
 import ProductCard from "../components/cards/ProductCard";
-import { Checkbox, Radio } from "antd";
+import { Radio } from "antd";
 import { prices } from "../prices";
 
 export default function Shop() {
-  const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [checked, setChecked] = useState([]); // categories
-  const [radio, setRadio] = useState([]); // radio
+  const [radio, setRadio] = useState([0, 10000]); // Estado inicial: "Todos"
+  const [page, setPage] = useState(1); // Página actual
+  const [totalProducts, setTotalProducts] = useState(0); // Total de productos
+  const size = 52; // Tamaño de cada página
 
+  // Cargar productos al cambiar de filtro o página
   useEffect(() => {
-    if (!checked.length || !radio.length) loadProducts();
-  }, []);
+    loadFilteredProducts();
+  }, [radio, page]);
 
-  useEffect(() => {
-    if (checked.length || radio.length) loadFilteredProducts();
-  }, [checked, radio]);
-
+  // Cargar productos filtrados por precio y paginados
   const loadFilteredProducts = async () => {
     try {
-      const { data } = await instance.post("/filtered-products", {
-        checked,
-        radio,
-      });
-      console.log("filtered products => ", data);
-      setProducts(data);
+      const { data } = await instance.get(
+        `/products/filter?minPrice=${radio[0]}&maxPrice=${radio[1]}&page=${page}&size=${size}`
+      );
+      setProducts(data.products);
+      setTotalProducts(data.totalProducts);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
-  const loadProducts = async () => {
-    try {
-      const { data } = await instance.get("/products");
-      setProducts(data);
-    } catch (err) {
-      console.log(err);
-    }
+  // Manejar selección de filtro por precio
+  const handleRadio = (e) => {
+    setRadio(e.target.value);
+    setPage(1); // Reiniciar a la primera página
   };
 
-  useEffect(() => {
-    loadCatgories();
-  }, []);
-
-  const loadCatgories = async () => {
-    try {
-      const { data } = await instance.get("/categories");
-      setCategories(data);
-    } catch (err) {
-      console.log(err);
+  // Manejar cambio de página y deslizar hacia arriba
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= Math.ceil(totalProducts / size)) {
+      setPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // Deslizar hacia arriba
     }
-  };
-
-  const handleCheck = (value, id) => {
-    console.log(value, id);
-    let all = [...checked];
-    if (value) {
-      all.push(id);
-    } else {
-      all = all.filter((c) => c !== id);
-    }
-    setChecked(all);
   };
 
   return (
     <>
       <Jumbotron title="PrimeMarket" subTitle="Bienvenidos a nuestra Tienda en línea" />
 
-      {/* <pre>{JSON.stringify({ checked, radio }, null, 4)}</pre> */}
-
       <div className="container-fluid">
         <div className="row">
           <div className="col-md-3">
-            <h2 className="p-3 mt-2 mb-2 h4 bg-light text-center">
-              Filtrar por Categorías
-            </h2>
-            <div className="row p-5">
-              {categories?.map((c) => (
-                <Checkbox
-                  key={c._id}
-                  onChange={(e) => handleCheck(e.target.checked, c._id)}
-                >
-                  {c.name}
-                </Checkbox>
-              ))}
-            </div>
-
-            <h2 className="p-3 mt-2 mb-2 h4 bg-light text-center">
-              Filtrar por Precio
-            </h2>
-            <div className="row p-5">
-              <Radio.Group onChange={(e) => setRadio(e.target.value)}>
-                {prices?.map((p) => (
-                  <div key={p._id} style={{ marginLeft: "8px" }}>
-                    <Radio value={p.array}>{p.name}</Radio>
-                  </div>
+            <h2 className="p-3 mt-2 mb-2 h4 bg-light text-center">Filtrar por Precio</h2>
+            <div className="row px-4 py-2">
+              <Radio.Group onChange={handleRadio} value={radio} style={{ width: "100%" }}>
+                {prices.map((p) => (
+                  <Radio
+                    key={p._id}
+                    value={p.array}
+                    style={{ display: "block", marginBottom: "8px" }}
+                  >
+                    {p.name}
+                  </Radio>
                 ))}
               </Radio.Group>
-            </div>
-
-            <div className="p-5 pt-0">
-              <button
-                className="btn btn-outline-secondary col-12"
-                onClick={() => window.location.reload()}
-              >
-                Reset
-              </button>
             </div>
           </div>
 
           <div className="col-md-9">
             <h2 className="p-3 mt-2 mb-2 h4 bg-light text-center">
-              {products?.length} Productos
+              {totalProducts} Productos
             </h2>
-
-            <div
-              className="row"
-              style={{ height: "100vh", overflow: "scroll" }}
-            >
-              {products?.map((p) => (
-                <div className="col-md-3" key={p._id}>
+            <div className="row">
+              {products.map((p) => (
+                <div className="col-md-3" key={p.id}>
                   <ProductCard p={p} />
                 </div>
               ))}
             </div>
+
+            {/* Barra de Paginación */}
+            <nav aria-label="Page navigation" className="mt-4">
+              <ul className="pagination justify-content-center"  >
+                <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => handlePageChange(page - 1)}>
+                    Previous
+                  </button>
+                </li>
+
+                {Array.from(
+                  { length: Math.ceil(totalProducts / size) },
+                  (_, index) => (
+                    <li
+                      key={index + 1}
+                      className={`page-item ${page === index + 1 ? "active" : ""}`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(index + 1)}
+                        
+                      >
+                        {index + 1}
+                      </button>
+                    </li>
+                  )
+                )}
+
+                <li
+                  className={`page-item ${
+                    page === Math.ceil(totalProducts / size) ? "disabled" : ""
+                  }`}
+                >
+                  <button className="page-link" onClick={() => handlePageChange(page + 1)}>
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>

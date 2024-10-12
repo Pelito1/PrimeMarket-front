@@ -2,7 +2,7 @@ export const prices = [
   {
     _id: 0,
     name: "Todos",
-    array: [],
+    array: [0,10000],
   },
   {
     _id: 1,
@@ -11,22 +11,22 @@ export const prices = [
   },
   {
     _id: 2,
-    name: "Q20 - Q39",
-    array: [20, 39],
+    name: "Q20 - Q59",
+    array: [20, 59],
   },
   {
     _id: 3,
-    name: "Q40 - Q59",
-    array: [40, 59],
+    name: "Q60 - Q99",
+    array: [60, 99],
   },
   {
     _id: 4,
-    name: "Q60 - Q79",
-    array: [60, 79],
+    name: "Q100 - Q199",
+    array: [100, 199],
   },
   {
     _id: 5,
-    name: "Más de Q80",
-    array: [80, 999],
+    name: "Más de Q200",
+    array: [200,10000],
   },
 ];
