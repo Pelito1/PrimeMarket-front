@@ -19,9 +19,14 @@ export default function CategoryView() {
 
   const loadProductsByCatgory = async () => {
     try {
-      const { data } = await instance.get(`/products-by-category/${params.slug}`);
-      setCategory(data.category);
-      setProducts(data.products);
+     // const { data } = await instance.get(`/products-by-category/${params.slug}`);
+     const { data } = await instance.get(`/categories/${params.slug}/products`);
+     setProducts(data);
+     if (data && data.length > 0) {
+      const { data } = await instance.get(`/categories/${params.slug}`);
+      setCategory(data);
+      console.log(category);
+  }
     } catch (err) {
       console.log(err);
     }
@@ -37,7 +42,7 @@ export default function CategoryView() {
       <div className="container-fluid">
         <div className="row mt-3">
           {products?.map((p) => (
-            <div key={p._id} className="col-md-4">
+            <div key={p._id} className="col-md-3">
               <ProductCard p={p} />
             </div>
           ))}

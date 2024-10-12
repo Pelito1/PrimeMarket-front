@@ -10,11 +10,18 @@ export default function CategoriesList() {
       <Jumbotron title="Categorías" subTitle="Listado de todas las categorías" />
 
       <div className="container overflow-hidden">
-        <div className="row gx-5 gy-5 mt-3 mb-5">
+        <div className="row gx-4 gy-4 mt-3 mb-5">
           {categories?.map((c) => (
-            <div className="col-md-6" key={c._id}>
-              <button className="btn btn-light col-12 text-dark p-3">
-                <Link to={`/category/${c.slug}`}>{c.name}</Link>
+            <div className="col-md-3" key={c.id}>
+              <button type="button" className="btn btn-outline-dark col-12 p-3 " 
+              style={{ borderRadius: "10px"}}>
+
+                <Link to={`/category/${c.id}`}  style={{
+                color: "inherit", // Hereda el color del botón (blanco o negro)
+              
+              }}>   {c.name}
+              
+              </Link>
               </button>
             </div>
           ))}

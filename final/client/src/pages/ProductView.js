@@ -24,6 +24,7 @@ export default function ProductView() {
   // state
   const [product, setProduct] = useState({});
   const [related, setRelated] = useState([]);
+  const [marcas, setMarcas] = useState([]);
   // hooks
   const params = useParams();
 
@@ -36,18 +37,24 @@ export default function ProductView() {
       //const { data } = await axios.get(`/product/${params.slug}`);
       const { data } = await instance.get(`/products/${params.slug}`);
       setProduct(data);
-      loadRelated(data.id, data.category._id);
+      loadRelated(data.id);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const loadRelated = async (productId, categoryId) => {
+  const loadRelated = async (productId) => {
     try {
-      const { data } = await axios.get(
-        `/related-products/${productId}/${categoryId}`
-      );
-      setRelated(data);
+      const { data } = await instance.get(`/categories/products/${productId}/categories`);
+      const firstId = data[data.length - 1]?.id;
+      const marcasVector =data.map(item => item.name);
+      setMarcas(marcasVector);
+      console.log(marcasVector);
+      if (data && data.length > 0) {
+        const { data } = await instance.get(`/categories/${firstId}/products`);
+        setRelated(data);
+      }
+      
     } catch (err) {
       console.log(err);
     }
@@ -76,14 +83,14 @@ export default function ProductView() {
                   //src={`${process.env.REACT_APP_API}/product/photo/${product._id}`}
                   src={product.image}
                   alt={product.name}
-                  style={{ height: "300px", width: "80%", objectFit: "cover" }}
+                  style={{ height: "300px", width: "80%", objectFit: "contain" }}
                 />
               </Badge.Ribbon>
            {/* </Badge.Ribbon>*/} 
 
             <div className="card-body">
-              <h1 className="fw-bold mb-1">{product?.name}</h1>
-              <p className="card-text lead mb-2">{product?.description}</p>
+              <h3 className="fw-bold mb-1">{product?.name}</h3>
+              <p className="card-text lead mb-2" style={{ fontSize: "0.875rem" }}>{product?.description}</p>
             </div>
             <div className="d-flex justify-content-between lead p-4 bg-light fw-bold">
               <div>
@@ -96,7 +103,7 @@ export default function ProductView() {
                 </p>
 
                 <p className="mb-1">
-                  <FaProjectDiagram /> Categoria: {product?.category?.name}
+                  <FaProjectDiagram /> Categoria: {marcas.join(" , ")}
                 </p>
 
                 <p className="mb-1">
@@ -126,12 +133,13 @@ export default function ProductView() {
         </div>
 {/* Espacio vacío a la izquierda */}
 <div className="col-md-1"></div>
-        <div className="col-md-4  p-3">
+        <div className="col-md-3 ml-auto p-3" style={{ maxHeight: "800px", overflowY: "auto" ,marginLeft: "auto"}}   >
+          
           <h2>Productos Relacionados</h2>
           <hr />
           {related?.length < 1 && <p>Ningun resultado</p>}
           {related?.map((p) => (
-            <ProductCard p={p} key={p._id} />
+            <ProductCard p={p} key={p.id} />
           ))}
         </div>
       </div>

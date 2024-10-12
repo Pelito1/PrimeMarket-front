@@ -21,7 +21,7 @@ export default function ProductCard({ p }) {
         <Badge.Ribbon
           text={`${
             p?.stock >= 1
-              ? `${p?.stock} en existencias`
+              ? `${p?.stock} en existencias ${p?.id}`
               : "No hay existencias"
           }`}
           placement="start"
@@ -32,13 +32,13 @@ export default function ProductCard({ p }) {
             //src={`${process.env.REACT_APP_API}/product/photo/${p._id}`}
             src={p.image}
             alt={p.name}
-            style={{ height: "165px", objectFit: "cover" }}
+            style={{ height: "150px", objectFit: "contain" }}
           />
         </Badge.Ribbon>
       
 
       <div className="card-body">
-        <h5>{p?.name}</h5>
+        <h5>{p?.name.substring(0, 30)}</h5>
 
         <h4 className="fw-bold">
           {p?.price?.toLocaleString("en-US", {

@@ -19,7 +19,7 @@ export default function Search() {
       <div className="container mt-3">
         <div className="row">
           {values?.results?.map((p) => (
-            <div key={p._id} className="col-md-4">
+            <div key={p._id} className="col-md-3">
               <ProductCard p={p} />
             </div>
           ))}

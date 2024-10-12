@@ -31,7 +31,7 @@ export default function ProductCardHorizontal({ p, remove = true }) {
             style={{
               height: "100px",
               width: "150px",
-              objectFit: "cover",
+              objectFit: "contain",
               marginLeft: "-12px",
               borderRopRightRadius: "0px",
             }}
