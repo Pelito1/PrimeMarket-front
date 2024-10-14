@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import ShippingForm from "../forms/ShippingForm";
 import CardForm from "../forms/CardForm";
+import instance from "../../pages/axios/axiosInstance";
 
 export default function UserCartSidebar({ cartTotal }) {
   const [auth] = useAuth(); // Obtener el estado de autenticación
@@ -18,10 +19,11 @@ export default function UserCartSidebar({ cartTotal }) {
 
   // Estados del formulario de envío (solo para anónimo)
   const [names, setNames] = useState("");
-  const [lastNames, setLastNames] = useState( "");
-  const [phoneNumber, setPhoneNumber] = useState( "");
+  const [lastNames, setLastNames] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [status, setStatus] = useState("0");
   const [address, setAddress] = useState("");
-  const [email, setEmail] = useState( "");
+  const [email, setEmail] = useState("");
 
   const [cardDetails, setCardDetails] = useState({
     cardNumber: "",
@@ -34,25 +36,37 @@ export default function UserCartSidebar({ cartTotal }) {
     try {
       setLoading(true);
 
-      if (paymentMethod === "card") {
-        const { data: authorization } = await axios.post(
-          "/api/payment/authorize",
-          cardDetails
-        );
+      let customerId = auth.id; // **Uso del ID del cliente si está autenticado**
+      let newCustomer = null;
 
-        if (!authorization.approved) {
-          toast.error("Transacción rechazada");
-          setLoading(false);
-          return;
-        }
+      // **Verificar si es una compra anónima**
+      if (!auth.id && anonymous) {
+        const { data } = await axios.post("/api/customers", {
+          names,
+          lastNames,
+          phoneNumber,
+          address,
+          email,
+          status
+        });
+        customerId = data.id; // **Guardar el ID del nuevo cliente**
       }
 
-      await axios.post("/api/orders", {
-        customer: { names, lastNames, phoneNumber, address, email },
-        cart,
+      const orderPayload = {
+        customerId, // ID del cliente
+        orderDetails: cart.map((product) => ({
+          productId: product.id,
+          qty: product.quantity,
+        })),
         paymentMethod,
-      });
+        total: parseFloat(cartTotal().replace(/[^0-9.-]+/g, "")), // Asegura que sea un número
+        status: "Creado", // Asegura que siempre tenga un valor
+      };
+      
 
+      await instance.post("/orders/checkout", orderPayload); // **Usar endpoint unificado**
+
+      // **Limpiar el carrito y redirigir**
       localStorage.removeItem("cart");
       setCart([]);
       navigate("/dashboard/user/orders");
@@ -82,7 +96,7 @@ export default function UserCartSidebar({ cartTotal }) {
       <hr />
       <h6>Total: {cartTotal()}</h6>
 
-      {!auth.id ? ( // Si no hay sesión iniciada
+      {!auth.id ? (
         <>
           <button
             className="btn btn-outline-danger mt-3"

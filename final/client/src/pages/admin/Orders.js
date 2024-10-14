@@ -30,7 +30,7 @@ export default function AdminOrders() {
 
   const getOrders = async () => {
     try {
-      const { data } = await instance.get("/all-orders");
+      const { data } = await instance.get("/orders");
       setOrders(data);
     } catch (err) {
       console.log(err);
