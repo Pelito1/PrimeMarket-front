@@ -120,8 +120,8 @@ export default function AdminProductUpdate() {
       const confirmDelete = window.confirm("¿Está seguro de que desea eliminar este producto?");
       if (!confirmDelete) return;
 
-      const { data } = await instance.delete(`/product/${id}`);
-      toast.success(`"${data.name}" ha sido eliminado.`);
+      const { data } = await instance.delete(`/products/${id}/delete`);
+      toast.success(`Ha sido eliminado.`);
       navigate("/dashboard/admin/products");
     } catch (err) {
       console.error("Error deleting product:", err);
