@@ -57,7 +57,7 @@ export default function App() {
           <Route path="admin/product" element={<AdminProduct />} />
           <Route path="admin/products" element={<AdminProducts />} />
           <Route
-            path="admin/product/update/:slug"
+            path="admin/product/update/:id"
             element={<AdminProductUpdate />}
           />
           <Route path="admin/orders" element={<AdminOrders />} />

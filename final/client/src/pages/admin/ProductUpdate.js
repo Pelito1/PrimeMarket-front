@@ -2,222 +2,270 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../context/auth";
 import Jumbotron from "../../components/cards/Jumbotron";
 import AdminMenu from "../../components/nav/AdminMenu";
-import axios from "axios";
-import { Select } from "antd";
 import toast from "react-hot-toast";
+import { Select } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import instance from "../axios/axiosInstance";
 
 const { Option } = Select;
 
 export default function AdminProductUpdate() {
-  // context
-  const [auth, setAuth] = useAuth();
-  // state
+  const [auth] = useAuth();
   const [categories, setCategories] = useState([]);
-  const [photo, setPhoto] = useState("");
+  const [brands, setBrands] = useState([]);
+  const [imageUrl, setImageUrl] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("");
-  const [shipping, setShipping] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [category, setCategory] = useState();
+  const [categoryText, setCategoryText] = useState("");
+  const [initialCategory, setInitialCategory] = useState(); // Nueva variable para categoría original
+  const [modifyCategory, setModifyCategory] = useState(false);
+  const [brand, setBrand] = useState();
+  const [brandText, setBrandText] = useState("");
+  const [initialBrand, setInitialBrand] = useState(); // Nueva variable para marca original
+  const [modifyBrand, setModifyBrand] = useState(false);
+  const [stock, setStock] = useState("");
   const [id, setId] = useState("");
-  // hook
   const navigate = useNavigate();
   const params = useParams();
 
   useEffect(() => {
-    loadProduct();
+    const fetchData = async () => {
+      await loadProductData();
+      await loadAllCategories();
+      await loadAllBrands();
+    };
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
-  const loadCategories = async () => {
+  const loadAllCategories = async () => {
     try {
       const { data } = await instance.get("/categories");
       setCategories(data);
     } catch (err) {
-      console.log(err);
+      console.error("Error loading categories:", err);
     }
   };
 
-  const loadProduct = async () => {
+  const loadAllBrands = async () => {
     try {
-      const { data } = await instance.get(`/product/${params.slug}`);
-      setName(data.name);
-      setDescription(data.description);
-      setPrice(data.price);
-      setCategory(data.category._id);
-      setShipping(data.shipping);
-      setQuantity(data.quantity);
-      setId(data._id);
+      const { data } = await instance.get("/brands");
+      setBrands(data);
     } catch (err) {
-      console.log(err);
+      console.error("Error loading brands:", err);
+    }
+  };
+
+  const loadProductData = async () => {
+    try {
+      const { data: productData } = await instance.get(`/products/${params.id}`);
+      setName(productData.name);
+      setImageUrl(productData.image);
+      setDescription(productData.description);
+      setPrice(productData.price);
+      setStock(productData.stock);
+      setId(productData.id);
+
+      // Marca del producto
+      setBrandText(productData.brand?.name || "Sin marca");
+      setBrand(productData.brand?.id || null);
+      setInitialBrand(productData.brand?.id || null); // Guardar marca original
+
+      // Categoría del producto
+      const { data: categoryData } = await instance.get(
+        `/categories/products/${params.id}/categories`
+      );
+      setCategoryText(categoryData[0]?.name);
+      setCategory(categoryData[0]?.id);
+      setInitialCategory(categoryData[0]?.id); // Guardar categoría original
+    } catch (err) {
+      console.error("Error loading product or category:", err);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const productData = new FormData();
-      photo && productData.append("photo", photo);
-      productData.append("name", name);
-      productData.append("description", description);
-      productData.append("price", price);
-      productData.append("category", category);
-      productData.append("shipping", shipping);
-      productData.append("quantity", quantity);
+      const productData = {
+        name,
+        description,
+        price,
+        category: modifyCategory ? category : initialCategory,
+        brand: modifyBrand ? brand : initialBrand,
+        image: imageUrl,
+        stock,
+      };
 
       const { data } = await instance.put(`/product/${id}`, productData);
       if (data?.error) {
         toast.error(data.error);
       } else {
-        toast.success(`"${data.name}" is updated`);
+        toast.success(`"${data.name}" ha sido actualizado correctamente.`);
         navigate("/dashboard/admin/products");
       }
     } catch (err) {
-      console.log(err);
-      toast.error("Product create failed. Try again.");
+      console.error("Error updating product:", err);
+      toast.error("No se pudo actualizar el producto. Inténtelo de nuevo.");
     }
   };
 
-  const handleDelete = async (req, res) => {
+  const handleDelete = async () => {
     try {
-      let answer = window.confirm(
-        "Are you sure you want to delete this product?"
-      );
-      if (!answer) return;
+      const confirmDelete = window.confirm("¿Está seguro de que desea eliminar este producto?");
+      if (!confirmDelete) return;
+
       const { data } = await instance.delete(`/product/${id}`);
-      toast.success(`"${data.name}" is deleted`);
+      toast.success(`"${data.name}" ha sido eliminado.`);
       navigate("/dashboard/admin/products");
     } catch (err) {
-      console.log(err);
-      toast.error("Delete failed. Try again.");
+      console.error("Error deleting product:", err);
+      toast.error("No se pudo eliminar el producto. Inténtelo de nuevo.");
     }
   };
 
   return (
     <>
-      <Jumbotron
-        title={`Hola ${auth?.names}`}
-        subTitle="Admin Dashboard"
-      />
+      <Jumbotron title={`Hola ${auth?.names}`} subTitle="Admin Dashboard" />
 
       <div className="container-fluid">
         <div className="row">
           <div className="col-md-3">
             <AdminMenu />
           </div>
-          <div className="col-md-9">
-            <div className="p-3 mt-2 mb-2 h4 bg-light">Update Product</div>
+          <div className="col-md-7">
+            <div className="p-3 mt-2 mb-2 h4 bg-light">Actualizar Producto</div>
 
-            {photo ? (
-              <div className="text-center">
-                <img
-                  src={URL.createObjectURL(photo)}
-                  alt="product photo"
-                  className="img img-responsive"
-                  height="200px"
-                />
-              </div>
-            ) : (
-              <div className="text-center">
-                <img
-                  src={`${
-                    process.env.REACT_APP_API
-                  }/product/photo/${id}?${new Date().getTime()}`}
-                  alt="product photo"
-                  className="img img-responsive"
-                  height="200px"
-                />
+            {imageUrl && (
+              <div className="text-center mb-3">
+                <img src={imageUrl} alt="Product" className="img img-responsive" height="175px" />
               </div>
             )}
 
-            <div className="pt-2">
-              <label className="btn btn-outline-secondary col-12 mb-3">
-                {photo ? photo.name : "Upload photo"}
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label>Imagen URL</label>
                 <input
-                  type="file"
-                  name="photo"
-                  accept="image/*"
-                  onChange={(e) => setPhoto(e.target.files[0])}
-                  hidden
+                  type="text"
+                  className="form-control"
+                  placeholder="Ingrese URL de imagen"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
                 />
-              </label>
-            </div>
+              </div>
 
-            <input
-              type="text"
-              className="form-control p-2 mb-3"
-              placeholder="Write a name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+              <div className="mb-3">
+                <label>Nombre</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Escriba un nombre"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
 
-            <textarea
-              type="text"
-              className="form-control p-2 mb-3"
-              placeholder="Write a description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+              <div className="mb-3">
+                <label>Descripción</label>
+                <textarea
+                  className="form-control"
+                  placeholder="Escriba una descripción"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
 
-            <input
-              type="number"
-              className="form-control p-2 mb-3"
-              placeholder="Enter price"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
+              <div className="mb-3">
+                <label>Precio</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Ingrese un precio"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                />
+              </div>
 
-            <Select
-              // showSearch
-              bordered={false}
-              size="large"
-              className="form-select mb-3"
-              placeholder="Choose category"
-              onChange={(value) => setCategory(value)}
-              value={category}
-            >
-              {categories?.map((c) => (
-                <Option key={c._id} value={c._id}>
-                  {c.name}
-                </Option>
-              ))}
-            </Select>
+              <div className="mb-3">
+                <label>Existencias</label>
+                <input
+                  type="number"
+                  min="1"
+                  className="form-control"
+                  placeholder="Ingrese existencias"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                />
+              </div>
 
-            <Select
-              bordered={false}
-              size="large"
-              className="form-select mb-3"
-              placeholder="Choose shipping"
-              onChange={(value) => setShipping(value)}
-              value={shipping ? "Yes" : "No"}
-            >
-              <Option value="0">No</Option>
-              <Option value="1">Yes</Option>
-            </Select>
+              <div className="mb-3">
+                <label>Categoría Actual: {categoryText}</label>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    checked={modifyCategory}
+                    onChange={() => setModifyCategory(!modifyCategory)}
+                  />
+                  <label className="form-check-label">Modificar Categoría</label>
+                </div>
+                {modifyCategory && (
+                  <Select
+                    bordered={false}
+                    size="large"
+                    className="form-select mt-2"
+                    value={category}
+                    onChange={(value) => setCategory(value)}
+                    placeholder="Seleccione una categoría"
+                  >
+                    {categories.map((c) => (
+                      <Option key={c.id} value={c.id}>
+                        {c.name}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              </div>
 
-            <input
-              type="number"
-              min="1"
-              className="form-control p-2 mb-3"
-              placeholder="Enter quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
+              <div className="mb-3">
+                <label>Marca Actual: {brandText}</label>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    checked={modifyBrand}
+                    onChange={() => setModifyBrand(!modifyBrand)}
+                  />
+                  <label className="form-check-label">Modificar Marca</label>
+                </div>
+                {modifyBrand && (
+                  <Select
+                    showSearch
+                    bordered={false}
+                    size="large"
+                    className="form-select mt-2"
+                    value={brand}
+                    onChange={(value) => setBrand(value)}
+                    placeholder="Seleccione una marca"
+                  >
+                    {brands.map((b) => (
+                      <Option key={b.id} value={b.id}>
+                        {b.name}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              </div>
 
-            <div className="d-flex justify-content-between">
-              <button onClick={handleSubmit} className="btn btn-primary mb-5">
-                Update
-              </button>
-              <button onClick={handleDelete} className="btn btn-danger mb-5">
-                Delete
-              </button>
-            </div>
+              <div className="d-flex justify-content-between mt-4">
+                <button type="submit" className="btn btn-primary">
+                  Actualizar
+                </button>
+                <button type="button" onClick={handleDelete} className="btn btn-danger">
+                  Borrar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

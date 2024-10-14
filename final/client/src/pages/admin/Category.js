@@ -87,7 +87,7 @@ export default function AdminCategory() {
       cancelText: "Cancelar",
       onOk: async () => {
         try {
-          const { data } = await instance.delete(`/category/${selected.id}`);
+          const { data } = await instance.delete(`/categories/${selected.id}`);
           if (data?.error) {
             message.error({
               content: data.error,
