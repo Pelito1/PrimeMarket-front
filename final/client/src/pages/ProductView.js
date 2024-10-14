@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
-//import moment from "moment";
+import { useNavigate, useParams } from "react-router-dom";
 import Jumbotron from "../components/cards/Jumbotron";
-import axios from "axios";
-import { useParams } from "react-router-dom";
 import { Badge } from "antd";
 import {
   FaProjectDiagram,
   FaCheck,
   FaTimes,
   FaWarehouse,
-  FaMoneyBill ,
+  FaMoneyBill,
   FaBarcode,
-  FaCartPlus
+  FaCartPlus,
 } from "react-icons/fa";
 import ProductCard from "../components/cards/ProductCard";
 import toast from "react-hot-toast";
@@ -19,99 +17,115 @@ import { useCart } from "../context/cart";
 import instance from "./axios/axiosInstance";
 
 export default function ProductView() {
-  // context
   const [cart, setCart] = useCart();
-  // state
   const [product, setProduct] = useState({});
   const [related, setRelated] = useState([]);
   const [marcas, setMarcas] = useState([]);
-  // hooks
-  const params = useParams();
 
+  const params = useParams();
+  const navigate = useNavigate();
+
+  // Cargar los detalles del producto al montar el componente
   useEffect(() => {
     if (params?.slug) loadProduct();
   }, [params?.slug]);
 
-  const loadProduct = async (req, res) => {
+  const loadProduct = async () => {
     try {
-      //const { data } = await axios.get(`/product/${params.slug}`);
       const { data } = await instance.get(`/products/${params.slug}`);
       setProduct(data);
       loadRelated(data.id);
     } catch (err) {
-      console.log(err);
+      console.error("Error al cargar el producto:", err);
     }
   };
 
   const loadRelated = async (productId) => {
     try {
-      const { data } = await instance.get(`/categories/products/${productId}/categories`);
+      const { data } = await instance.get(
+        `/categories/products/${productId}/categories`
+      );
       const firstId = data[data.length - 1]?.id;
-      const marcasVector =data.map(item => item.name);
+      const marcasVector = data.map((item) => item.name);
       setMarcas(marcasVector);
-      console.log(marcasVector);
-      if (data && data.length > 0) {
-        const { data } = await instance.get(`/categories/${firstId}/products`);
-        setRelated(data);
+
+      if (data.length > 0) {
+        const relatedProducts = await instance.get(
+          `/categories/${firstId}/products`
+        );
+        setRelated(relatedProducts.data);
       }
-      
     } catch (err) {
-      console.log(err);
+      console.error("Error al cargar productos relacionados:", err);
+    }
+  };
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation(); // Evita que el clic navegue al detalle del producto
+
+    const productInCart = cart.find((item) => item.id === product.id);
+
+    if (productInCart) {
+      navigate("/cart");
+      toast.info("Este producto ya está en tu carrito.");
+    } else {
+      const updatedCart = [...cart, { ...product, quantity: 1 }];
+      setCart(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      toast.success("Producto añadido al carrito.");
     }
   };
 
   return (
     <div className="container-fluid bg-light">
-      <Jumbotron title="PrimeMarket" subTitle="Bienvenidos a nuestra Tienda en línea"/>
+      <Jumbotron
+        title="PrimeMarket"
+        subTitle="Bienvenidos a nuestra Tienda en línea"
+      />
       <div className="row">
-
-       {/* Espacio vacío a la izquierda */} <div className="col-md-2"></div>
+        <div className="col-md-2"></div>
         <div className="col-md-5 p-3">
           <div className="card mb-3">
-            {/*<Badge.Ribbon text={`${product?.sold} 45vendidos`} color="red">*/}
-              <Badge.Ribbon
-                text={`${
-                  product?.stock >= 1
-                    ? `${product?.stock} en existencias`
-                    : "No hay existencias"
-                }`}
-                placement="start"
-                color="black"
-              >
-                <img
-                  className="card-img-top"
-                  //src={`${process.env.REACT_APP_API}/product/photo/${product._id}`}
-                  src={product.image}
-                  alt={product.name}
-                  style={{ height: "300px", width: "80%", objectFit: "contain" }}
-                />
-              </Badge.Ribbon>
-           {/* </Badge.Ribbon>*/} 
+            <Badge.Ribbon
+              text={
+                product.stock > 0 ? `${product.stock} en existencias` : "Agotado"
+              }
+              placement="start"
+              color={product.stock > 0 ? "black" : "red"}
+            >
+              <img
+                className="card-img-top"
+                src={product.image}
+                alt={product.name}
+                style={{ height: "300px", width: "80%", objectFit: "contain" }}
+              />
+            </Badge.Ribbon>
 
             <div className="card-body">
-              <h3 className="fw-bold mb-1">{product?.name}</h3>
-              <p className="card-text lead mb-2" style={{ fontSize: "0.875rem" }}>{product?.description}</p>
+              <h3 className="fw-bold mb-1">{product.name}</h3>
+              <p className="card-text lead mb-2" style={{ fontSize: "0.875rem" }}>
+                {product.description}
+              </p>
             </div>
+
             <div className="d-flex justify-content-between lead p-4 bg-light fw-bold">
               <div>
                 <p className="mb-1">
-                  <FaMoneyBill/> Precio:{" "}
-                  {product?.price?.toLocaleString("en-US", {
+                  <FaMoneyBill /> Precio:{" "}
+                  {product.price?.toLocaleString("en-US", {
                     style: "currency",
                     currency: "GTQ",
                   })}
                 </p>
-
                 <p className="mb-1">
-                  <FaProjectDiagram /> Categoria: {marcas.join(" , ")}
+                  <FaProjectDiagram /> Categoría: {marcas.join(", ")}
                 </p>
-
                 <p className="mb-1">
                   <FaBarcode /> Marca: {product?.brand?.name}
                 </p>
-
                 <p className="mb-1">
-                  <FaWarehouse /> Disponible {product?.stock} existencias  {product?.stock > 0 ? <FaCheck /> : <FaTimes />}{" "} 
+                  <FaWarehouse /> Disponible: {product.stock}{" "}
+                  {product.stock > 0 ? <FaCheck /> : <FaTimes />}
                 </p>
               </div>
             </div>
@@ -122,23 +136,30 @@ export default function ProductView() {
                 borderBottomRightRadius: "5px",
                 borderBottomLeftRadius: "5px",
               }}
-              onClick={() => {
-                setCart([...cart, product]);
-                toast.success("Añadido al carrito");
-              }}
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
             >
-              Agregar a Carrito  <FaCartPlus fontSize="large"/>
+              {product.stock > 0 ? (
+                <>
+                  Agregar a Carrito <FaCartPlus fontSize="large" />
+                </>
+              ) : (
+                "Agotado"
+              )}
             </button>
           </div>
         </div>
-{/* Espacio vacío a la izquierda */}
-<div className="col-md-1"></div>
-        <div className="col-md-3 ml-auto p-3" style={{ maxHeight: "800px", overflowY: "auto" ,marginLeft: "auto"}}   >
-          
+
+        <div className="col-md-1"></div>
+
+        <div
+          className="col-md-3 ml-auto p-3"
+          style={{ maxHeight: "800px", overflowY: "auto" }}
+        >
           <h2>Productos Relacionados</h2>
           <hr />
-          {related?.length < 1 && <p>Ningun resultado</p>}
-          {related?.map((p) => (
+          {related.length < 1 && <p>No hay productos relacionados</p>}
+          {related.map((p) => (
             <ProductCard p={p} key={p.id} />
           ))}
         </div>
