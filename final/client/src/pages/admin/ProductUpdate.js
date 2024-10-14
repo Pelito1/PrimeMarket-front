@@ -19,11 +19,12 @@ export default function AdminProductUpdate() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState();
   const [categoryText, setCategoryText] = useState("");
-  const [initialCategory, setInitialCategory] = useState(); // Nueva variable para categoría original
+  const [initialCategory, setInitialCategory] = useState(); // Categoría original
   const [modifyCategory, setModifyCategory] = useState(false);
-  const [brand, setBrand] = useState();
-  const [brandText, setBrandText] = useState("");
-  const [initialBrand, setInitialBrand] = useState(); // Nueva variable para marca original
+  const [brand, setBrand] = useState(); // ID de la marca seleccionada
+  const [brandText, setBrandText] = useState(""); // Nombre de la marca seleccionada
+  const [initialBrand, setInitialBrand] = useState(); // ID de la marca original
+  const [initialBrandText, setInitialBrandText] = useState(""); // Nombre de la marca original
   const [modifyBrand, setModifyBrand] = useState(false);
   const [stock, setStock] = useState("");
   const [id, setId] = useState("");
@@ -70,7 +71,8 @@ export default function AdminProductUpdate() {
       // Marca del producto
       setBrandText(productData.brand?.name || "Sin marca");
       setBrand(productData.brand?.id || null);
-      setInitialBrand(productData.brand?.id || null); // Guardar marca original
+      setInitialBrand(productData.brand?.id || null); // Guardar ID original
+      setInitialBrandText(productData.brand?.name || "Sin marca"); // Guardar nombre original
 
       // Categoría del producto
       const { data: categoryData } = await instance.get(
@@ -88,16 +90,19 @@ export default function AdminProductUpdate() {
     e.preventDefault();
     try {
       const productData = {
+        id,
         name,
         description,
         price,
-        category: modifyCategory ? category : initialCategory,
-        brand: modifyBrand ? brand : initialBrand,
+        brand: {
+          id: modifyBrand ? brand : initialBrand,
+          name: modifyBrand ? brandText : initialBrandText,
+        },
         image: imageUrl,
         stock,
       };
-
-      const { data } = await instance.put(`/product/${id}`, productData);
+      setCategory(modifyCategory ? category : initialCategory);
+      const { data } = await instance.put(`/products/${id}/category/${category}`, productData);
       if (data?.error) {
         toast.error(data.error);
       } else {
@@ -236,16 +241,15 @@ export default function AdminProductUpdate() {
                     checked={modifyBrand}
                     onChange={() => setModifyBrand(!modifyBrand)}
                   />
-                  <label className="form-check-label">Modificar Marca</label>
+                  <label>Modificar Marca</label>
                 </div>
                 {modifyBrand && (
                   <Select
-                    showSearch
-                    bordered={false}
-                    size="large"
-                    className="form-select mt-2"
                     value={brand}
-                    onChange={(value) => setBrand(value)}
+                    onChange={(value, option) => {
+                      setBrand(value);
+                      setBrandText(option.children);
+                    }}
                     placeholder="Seleccione una marca"
                   >
                     {brands.map((b) => (
