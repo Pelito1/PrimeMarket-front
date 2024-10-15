@@ -21,6 +21,7 @@ import CategoriesList from "./pages/CategoriesList";
 import CategoryView from "./pages/CategoryView";
 import Cart from "./pages/Cart";
 import AdminOrders from "./pages/admin/Orders";
+import SeasonDetail from "./pages/SeasonDetail";
 
 const PageNotFound = () => {
   return (
@@ -37,6 +38,7 @@ export default function App() {
       <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/season/:seasonId" element={<SeasonDetail />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/categories" element={<CategoriesList />} />
         <Route path="/category/:slug" element={<CategoryView />} />
