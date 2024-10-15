@@ -74,8 +74,9 @@ export default function AdminOrders() {
   const handleStatusChange = async (orderId, value) => {
     setChangedStatus(value);
     try {
-      await instance.put(`/order-status/${orderId}`, { status: value });
+      await instance.put(`/orders/order-status/${orderId}`,  value );
       message.success("Estado actualizado");
+      console.log(value);
       getOrders();
     } catch (err) {
       message.error("Error al actualizar estado");
