@@ -4,12 +4,13 @@ import Jumbotron from "../../components/cards/Jumbotron";
 import AdminMenu from "../../components/nav/AdminMenu";
 import { Modal } from "antd";
 import toast from "react-hot-toast";
-import moment from "moment";  // Asegúrate de importar moment
+import moment from "moment";
 import instance from "../axios/axiosInstance";
 
 export default function AdminSeasons() {
   const [auth] = useAuth();
 
+  // Estado para crear temporada
   const [newSeason, setNewSeason] = useState({
     name: "",
     startDate: "",
@@ -19,6 +20,7 @@ export default function AdminSeasons() {
     image: "",
   });
 
+  // Estado para actualizar/eliminar temporada
   const [updateSeason, setUpdateSeason] = useState({
     id: null,
     name: "",
@@ -46,7 +48,7 @@ export default function AdminSeasons() {
 
   const loadSeasons = async () => {
     try {
-      const { data } = await instance.get("/seasons");
+      const { data } = await instance.get("/seasons/all");
       const formattedSeasons = data.map((season) => ({
         ...season,
         startDate: moment(season.startDate, "YYYY-MM-DD").format("DD/MM/YYYY"),
@@ -124,6 +126,7 @@ export default function AdminSeasons() {
           </div>
 
           <div className="col-md-9">
+            {/* Crear Temporada */}
             <div className="p-3 mt-2 mb-2 h4 bg-light">Crear Temporada</div>
             <form onSubmit={handleCreateSeason}>
               <input
@@ -161,7 +164,7 @@ export default function AdminSeasons() {
               />
               <input
                 type="text"
-                placeholder="Estado (1 o 0)"
+                placeholder="Estado (A o I)"
                 className="form-control mb-2"
                 value={newSeason.status}
                 onChange={(e) =>
@@ -188,6 +191,7 @@ export default function AdminSeasons() {
 
             <hr />
 
+            {/* Administrar Temporadas */}
             <div className="p-3 mt-2 mb-2 h4 bg-light">Administrar Temporadas</div>
             <div className="col">
               {seasons.map((season) => (
@@ -198,8 +202,12 @@ export default function AdminSeasons() {
                     setUpdateSeason({
                       id: season.id,
                       name: season.name,
-                      startDate: season.startDate,
-                      endDate: season.endDate,
+                      startDate: moment(season.startDate, "DD/MM/YYYY").format(
+                        "YYYY-MM-DD"
+                      ),
+                      endDate: moment(season.endDate, "DD/MM/YYYY").format(
+                        "YYYY-MM-DD"
+                      ),
                       description: season.description,
                       status: season.status,
                       image: season.image,
@@ -221,7 +229,45 @@ export default function AdminSeasons() {
                   setUpdateSeason({ ...updateSeason, name: e.target.value })
                 }
               />
-              {/* Campos restantes */}
+              <input
+                type="date"
+                className="form-control mb-2"
+                value={updateSeason.startDate}
+                onChange={(e) =>
+                  setUpdateSeason({ ...updateSeason, startDate: e.target.value })
+                }
+              />
+              <input
+                type="date"
+                className="form-control mb-2"
+                value={updateSeason.endDate}
+                onChange={(e) =>
+                  setUpdateSeason({ ...updateSeason, endDate: e.target.value })
+                }
+              />
+              <textarea
+                className="form-control mb-2"
+                value={updateSeason.description}
+                onChange={(e) =>
+                  setUpdateSeason({ ...updateSeason, description: e.target.value })
+                }
+              />
+              <input
+                type="text"
+                className="form-control mb-2"
+                value={updateSeason.status}
+                onChange={(e) =>
+                  setUpdateSeason({ ...updateSeason, status: e.target.value })
+                }
+              />
+              <input
+                type="text"
+                className="form-control mb-2"
+                value={updateSeason.image}
+                onChange={(e) =>
+                  setUpdateSeason({ ...updateSeason, image: e.target.value })
+                }
+              />
               <div className="d-flex justify-content-between">
                 <button className="btn btn-primary" onClick={handleUpdateSeason}>
                   Actualizar
