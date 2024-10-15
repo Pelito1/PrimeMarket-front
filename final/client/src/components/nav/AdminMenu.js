@@ -29,6 +29,12 @@ export default function AdminMenu() {
             Administrar ordenes
           </NavLink>
         </li>
+
+        <li>
+          <NavLink className="list-group-item" to="/dashboard/admin/seasons">
+            Administrar temporadas
+          </NavLink>
+        </li> 
       </ul>
     </>
   );

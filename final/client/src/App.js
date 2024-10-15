@@ -22,6 +22,7 @@ import CategoryView from "./pages/CategoryView";
 import Cart from "./pages/Cart";
 import AdminOrders from "./pages/admin/Orders";
 import SeasonDetail from "./pages/SeasonDetail";
+import AdminSeasons from "./pages/admin/AdminSeasons";
 
 const PageNotFound = () => {
   return (
@@ -63,6 +64,7 @@ export default function App() {
             element={<AdminProductUpdate />}
           />
           <Route path="admin/orders" element={<AdminOrders />} />
+          <Route path="/dashboard/admin/seasons" element={<AdminSeasons />} />
         </Route>
         <Route path="*" element={<PageNotFound />} replace />
       </Routes>
