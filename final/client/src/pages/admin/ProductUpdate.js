@@ -31,11 +31,17 @@ export default function AdminProductUpdate() {
   const navigate = useNavigate();
   const params = useParams();
 
+  const [seasons, setSeasons] = useState([]);
+const [selectedSeasonId, setSelectedSeasonId] = useState(null); // Guardar el ID de la temporada seleccionada
+
+
   useEffect(() => {
     const fetchData = async () => {
       await loadProductData();
       await loadAllCategories();
       await loadAllBrands();
+      await loadAllSeasons(); // Cargar las temporadas
+
     };
     fetchData();
   }, []);
@@ -57,6 +63,16 @@ export default function AdminProductUpdate() {
       console.error("Error loading brands:", err);
     }
   };
+
+  const loadAllSeasons = async () => {
+    try {
+      const { data } = await instance.get("/seasons/all");
+      setSeasons(data);
+    } catch (err) {
+      console.error("Error loading seasons:", err);
+    }
+  };
+  
 
   const loadProductData = async () => {
     try {
@@ -85,6 +101,27 @@ export default function AdminProductUpdate() {
       console.error("Error loading product or category:", err);
     }
   };
+
+  const handleAddProductToSeason = async () => {
+    try {
+      await instance.post(`/seasons/${selectedSeasonId}/products/${id}`);
+      toast.success("Producto agregado a la temporada.");
+    } catch (err) {
+      console.error("Error adding product to season:", err);
+      toast.error("No se pudo agregar el producto a la temporada.");
+    }
+  };
+  
+  const handleRemoveProductFromSeason = async () => {
+    try {
+      await instance.delete(`/seasons/${selectedSeasonId}/products/${id}`);
+      toast.success("Producto eliminado de la temporada.");
+    } catch (err) {
+      console.error("Error removing product from season:", err);
+      toast.error("No se pudo eliminar el producto de la temporada.");
+    }
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -143,7 +180,12 @@ export default function AdminProductUpdate() {
 
             {imageUrl && (
               <div className="text-center mb-3">
-                <img src={imageUrl} alt="Product" className="img img-responsive" height="175px" />
+                <img
+                  src={imageUrl}
+                  alt="Product"
+                  className="img img-responsive"
+                  height="175px"
+                />
               </div>
             )}
 
@@ -212,7 +254,9 @@ export default function AdminProductUpdate() {
                     checked={modifyCategory}
                     onChange={() => setModifyCategory(!modifyCategory)}
                   />
-                  <label className="form-check-label">Modificar Categoría</label>
+                  <label className="form-check-label">
+                    Modificar Categoría
+                  </label>
                 </div>
                 {modifyCategory && (
                   <Select
@@ -265,11 +309,47 @@ export default function AdminProductUpdate() {
                 <button type="submit" className="btn btn-primary">
                   Actualizar
                 </button>
-                <button type="button" onClick={handleDelete} className="btn btn-danger">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="btn btn-danger"
+                >
                   Borrar
                 </button>
               </div>
             </form>
+
+            <hr />
+
+            <div className="p-3 mt-2 mb-2 h4 bg-light">
+              Agregar Producto a Temporada
+            </div>
+            <Select
+              style={{ width: "100%" }}
+              placeholder="Seleccione una temporada"
+              onChange={(value) => setSelectedSeasonId(value)}
+            >
+              {seasons.map((season) => (
+                <Option key={season.id} value={season.id}>
+                  {season.name}
+                </Option>
+              ))}
+            </Select>
+
+            <div className="d-flex justify-content-between mt-3">
+              <button
+                className="btn btn-success"
+                onClick={handleAddProductToSeason}
+              >
+                Agregar
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={handleRemoveProductFromSeason}
+              >
+                Eliminar
+              </button>
+            </div>
           </div>
         </div>
       </div>
