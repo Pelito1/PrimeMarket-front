@@ -1,23 +1,24 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/auth";
 import { useCart } from "../../context/cart";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
-import ShippingForm from "../forms/ShippingForm";
-import CardForm from "../forms/CardForm";
+import CardFormAnonimo from "../forms/CardFormAnonimo";
 import instance from "../../pages/axios/axiosInstance";
 
 export default function UserCartSidebar({ cartTotal }) {
-  const [auth] = useAuth(); // Obtener el estado de autenticación
-  const [cart, setCart] = useCart();
-  const navigate = useNavigate();
+  const [auth] = useAuth(); // Estado de autenticación
+  const [cart, setCart] = useCart(); // Estado del carrito
   const [loading, setLoading] = useState(false);
-  const [anonymous, setAnonymous] = useState(false); // Maneja si el usuario elige continuar como anónimo
+  const [anonymous, setAnonymous] = useState(false); // Manejo del modo anónimo
   const [paymentMethod, setPaymentMethod] = useState("");
   const [showCardForm, setShowCardForm] = useState(false);
+  const [cardData, setCardData] = useState(null); // Datos de la tarjeta para autenticado
 
-  // Estados del formulario de envío (solo para anónimo)
+  const navigate = useNavigate();
+
+  // Estados del formulario de envío (modo anónimo)
   const [names, setNames] = useState("");
   const [lastNames, setLastNames] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -25,48 +26,52 @@ export default function UserCartSidebar({ cartTotal }) {
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
 
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: "",
-    cardName: "",
-    expiration: "",
-    cvv: "",
-  });
+  // Escenario 2: Obtener tarjeta desde API para usuario autenticado
+  useEffect(() => {
+    if (paymentMethod === "card" && auth.id) {
+      const selectedCardId = localStorage.getItem("selectedCardId");
+      if (selectedCardId) {
+        axios
+          .get(`/api/credit-cards/${selectedCardId}`)
+          .then((response) => setCardData(response.data))
+          .catch(() => toast.error("No se pudo obtener la tarjeta."));
+      }
+    }
+  }, [paymentMethod, auth.id]);
 
-  const handleBuy = async () => {
+  const handleBuy = async (cardDetails = null) => {
     try {
       setLoading(true);
 
-      let customerId = auth.id; // **Uso del ID del cliente si está autenticado**
-      let newCustomer = null;
-
-      // **Verificar si es una compra anónima**
+      let customerId = auth.id; // ID del cliente autenticado
       if (!auth.id && anonymous) {
+        // Crear cliente anónimo si el usuario no está autenticado
         const { data } = await axios.post("/api/customers", {
           names,
           lastNames,
           phoneNumber,
           address,
           email,
-          status
+          status,
         });
-        customerId = data.id; // **Guardar el ID del nuevo cliente**
+        customerId = data.id;
       }
 
       const orderPayload = {
-        customerId, // ID del cliente
+        customerId,
         orderDetails: cart.map((product) => ({
           productId: product.id,
           qty: product.quantity,
         })),
         paymentMethod,
-        total: parseFloat(cartTotal().replace(/[^0-9.-]+/g, "")), // Asegura que sea un número
-        status: "Creado", // Asegura que siempre tenga un valor
+        cardData: cardDetails || cardData, // Enviar los datos de tarjeta
+        total: parseFloat(cartTotal().replace(/[^0-9.-]+/g, "")),
+        status: "Creado",
       };
-      
 
-      await instance.post("/orders/checkout", orderPayload); // **Usar endpoint unificado**
+      await instance.post("/orders/checkout", orderPayload);
 
-      // **Limpiar el carrito y redirigir**
+      // Limpiar el carrito y redirigir
       localStorage.removeItem("cart");
       setCart([]);
       navigate("/dashboard/user/orders");
@@ -80,12 +85,12 @@ export default function UserCartSidebar({ cartTotal }) {
   };
 
   const isFormValid = () => {
-    if (!auth.id && !anonymous) return false; // Debe iniciar sesión o continuar como anónimo
+    if (!auth.id && !anonymous) return false;
     if (anonymous && (!names || !lastNames || !phoneNumber || !address || !email)) {
-      return false; // Falta información en el formulario de envío
+      return false;
     }
-    if (paymentMethod === "card" && (!cardDetails.cardNumber || !cardDetails.cardName || !cardDetails.expiration || !cardDetails.cvv)) {
-      return false; // Falta información en el formulario de tarjeta
+    if (paymentMethod === "card" && !auth.id && !cardData) {
+      return false;
     }
     return true;
   };
@@ -115,44 +120,59 @@ export default function UserCartSidebar({ cartTotal }) {
           </div>
 
           {anonymous && (
-            <ShippingForm
-              names={names}
-              setNames={setNames}
-              lastNames={lastNames}
-              setLastNames={setLastNames}
-              phoneNumber={phoneNumber}
-              setPhoneNumber={setPhoneNumber}
-              address={address}
-              setAddress={setAddress}
-              email={email}
-              setEmail={setEmail}
-            />
+            <div className="mt-3">
+              <h5>Información de Envío</h5>
+              <input
+                type="text"
+                className="form-control mb-2"
+                placeholder="Nombres"
+                value={names}
+                onChange={(e) => setNames(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                className="form-control mb-2"
+                placeholder="Apellidos"
+                value={lastNames}
+                onChange={(e) => setLastNames(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                className="form-control mb-2"
+                placeholder="Teléfono"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                className="form-control mb-2"
+                placeholder="Dirección"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+              />
+              <input
+                type="email"
+                className="form-control mb-2"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           )}
         </>
       ) : (
-        <>
-          <div className="mb-3">
-            <h5>Tus datos:</h5>
-            <p>
-              <strong>Nombre:</strong> {auth.names} {auth.lastNames}
-            </p>
-            <p>
-              <strong>Teléfono:</strong> {auth.phoneNumber}
-            </p>
-            <p>
-              <strong>Dirección:</strong> {auth.address}
-            </p>
-            <p>
-              <strong>Email:</strong> {auth.email}
-            </p>
-          </div>
-          <button
-            className="btn btn-outline-warning"
-            onClick={() => navigate("/dashboard/user/profile")}
-          >
-            Actualizar información
-          </button>
-        </>
+        <div className="mb-3">
+          <h5>Tus datos:</h5>
+          <p><strong>Nombre:</strong> {auth.names} {auth.lastNames}</p>
+          <p><strong>Teléfono:</strong> {auth.phoneNumber}</p>
+          <p><strong>Dirección:</strong> {auth.address}</p>
+          <p><strong>Email:</strong> {auth.email}</p>
+        </div>
       )}
 
       <div className="mt-3">
@@ -162,10 +182,7 @@ export default function UserCartSidebar({ cartTotal }) {
             type="radio"
             name="payment"
             value="cash"
-            onChange={() => {
-              setPaymentMethod("cash");
-              setShowCardForm(false);
-            }}
+            onChange={() => setPaymentMethod("cash")}
             required
           />
           <label className="ms-2">Pago en efectivo contra entrega</label>
@@ -184,13 +201,13 @@ export default function UserCartSidebar({ cartTotal }) {
           <label className="ms-2">Tarjeta de crédito / débito</label>
         </div>
 
-        {showCardForm && (
-          <CardForm cardDetails={cardDetails} setCardDetails={setCardDetails} />
+        {showCardForm && !auth.id && (
+          <CardFormAnonimo onSubmit={handleBuy} />
         )}
       </div>
 
       <button
-        onClick={handleBuy}
+        onClick={() => handleBuy()}
         className="btn btn-primary col-12 mt-3"
         disabled={!isFormValid() || loading}
       >
