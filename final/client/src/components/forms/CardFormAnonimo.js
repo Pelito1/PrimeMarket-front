@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function CardFormAnonimo({ onSubmit }) {
+export default function CardFormAnonimo({ onChange }) {
   const [details, setDetails] = useState({
     cvv: "",
     ccNumber: "",
@@ -9,8 +9,11 @@ export default function CardFormAnonimo({ onSubmit }) {
     status: "",
   });
 
+  // Esta función actualiza los detalles y también notifica al componente padre
   const handleInputChange = (field, value) => {
-    setDetails((prev) => ({ ...prev, [field]: value }));
+    const newDetails = { ...details, [field]: value };
+    setDetails(newDetails);
+    onChange(newDetails); // Envía los cambios al componente principal
   };
 
   const validateDueDate = () => {
@@ -22,17 +25,25 @@ export default function CardFormAnonimo({ onSubmit }) {
 
   const handleStatusUpdate = () => {
     const status = validateDueDate() ? "A" : "I";
-    setDetails((prev) => ({ ...prev, status }));
+    // Si la fecha es incorrecta, mostrar pop-up y limpiar el campo de fecha
+    if (status === "I") {
+      //alert("Fecha incorrecta");
+      setDetails((prev) => ({ ...prev, ccDueDate: "" }));  // Limpiar el campo de fecha
+    }
+
+    setDetails((prev) => {
+      const newDetails = { ...prev, status };
+      onChange(newDetails); // Envía los cambios al componente principal
+      return newDetails;
+    });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleStatusUpdate(); // Actualiza el estado antes de enviar
-    onSubmit(details); // Enviar los datos al componente padre
-  };
+  useEffect(() => {
+    handleStatusUpdate(); // Validar y enviar los detalles iniciales al cargar el componente
+  }, []);
 
   return (
-    <form className="mt-3" onSubmit={handleSubmit}>
+    <form className="mt-3">
       <h5>Información de Tarjeta</h5>
      
       <input
@@ -51,7 +62,7 @@ export default function CardFormAnonimo({ onSubmit }) {
         placeholder="Fecha de Expiración (dd/MM/yyyy)"
         value={details.ccDueDate}
         onChange={(e) => handleInputChange("ccDueDate", e.target.value)}
-        onBlur={handleStatusUpdate} // Actualiza el estado al perder el foco
+        onBlur={handleStatusUpdate} // Validar la fecha de expiración
         required
       />
        <input
@@ -71,9 +82,6 @@ export default function CardFormAnonimo({ onSubmit }) {
         onChange={(e) => handleInputChange("ccName", e.target.value)}
         required
       />
-      <button className="btn btn-primary mt-2" type="submit">
-        Enviar
-      </button>
     </form>
   );
 }
