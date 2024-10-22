@@ -4,8 +4,8 @@ import { useCart } from "../../context/cart";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
-import CardFormAnonimo from "../forms/CardFormAnonimo";
 import instance from "../../pages/axios/axiosInstance";
+import CardFormAnonimo from "../forms/CardFormAnonimo";
 
 export default function UserCartSidebar({ cartTotal }) {
   const [auth] = useAuth(); // Estado de autenticación
@@ -14,7 +14,9 @@ export default function UserCartSidebar({ cartTotal }) {
   const [anonymous, setAnonymous] = useState(false); // Manejo del modo anónimo
   const [paymentMethod, setPaymentMethod] = useState("");
   const [showCardForm, setShowCardForm] = useState(false);
-  const [cardData, setCardData] = useState(null); // Datos de la tarjeta para autenticado
+  const [cards, setCards] = useState([]); // Tarjetas del usuario autenticado
+  const [selectedCardId, setSelectedCardId] = useState(null); // Tarjeta seleccionada por el usuario
+  const [cardDetails, setCardDetails] = useState(null); // Detalles de la tarjeta para usuarios no autenticados
 
   const navigate = useNavigate();
 
@@ -26,26 +28,24 @@ export default function UserCartSidebar({ cartTotal }) {
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
 
-  // Escenario 2: Obtener tarjeta desde API para usuario autenticado
+  // Obtener tarjetas registradas si el usuario está logueado y selecciona "Tarjeta"
   useEffect(() => {
     if (paymentMethod === "card" && auth.id) {
-      const selectedCardId = localStorage.getItem("selectedCardId");
-      if (selectedCardId) {
-        axios
-          .get(`/api/credit-cards/${selectedCardId}`)
-          .then((response) => setCardData(response.data))
-          .catch(() => toast.error("No se pudo obtener la tarjeta."));
-      }
+      axios
+        .get(`/api/credit-cards/customer/${auth.id}`)
+        .then((response) => setCards(response.data))
+        .catch(() => toast.error("No se pudieron cargar las tarjetas registradas."));
     }
   }, [paymentMethod, auth.id]);
 
-  const handleBuy = async (cardDetails = null) => {
+  // Función para manejar la compra cuando el botón "Comprar" es presionado
+  const handleBuy = async () => {
     try {
       setLoading(true);
 
-      let customerId = auth.id; // ID del cliente autenticado
+      let customerId = auth.id;
       if (!auth.id && anonymous) {
-        // Crear cliente anónimo si el usuario no está autenticado
+        // Crear cliente anónimo
         const { data } = await axios.post("/api/customers", {
           names,
           lastNames,
@@ -57,25 +57,99 @@ export default function UserCartSidebar({ cartTotal }) {
         customerId = data.id;
       }
 
-      const orderPayload = {
-        customerId,
-        orderDetails: cart.map((product) => ({
-          productId: product.id,
-          qty: product.quantity,
-        })),
-        paymentMethod,
-        cardData: cardDetails || cardData, // Enviar los datos de tarjeta
-        total: parseFloat(cartTotal().replace(/[^0-9.-]+/g, "")),
-        status: "Creado",
-      };
+      if (paymentMethod === "cash") {
+        // Escenario de pago en efectivo contra entrega
+        const orderPayload = {
+          customerId,
+          orderDetails: cart.map((product) => ({
+            productId: product.id,
+            qty: product.quantity,
+          })),
+          paymentMethod,
+          total: parseFloat(cartTotal().replace(/[^0-9.-]+/g, "")),
+          status: "Creado",
+        };
 
-      await instance.post("/orders/checkout", orderPayload);
+        await instance.post("/orders/checkout", orderPayload);
 
-      // Limpiar el carrito y redirigir
-      localStorage.removeItem("cart");
-      setCart([]);
-      navigate("/dashboard/user/orders");
-      toast.success("Pedido realizado con éxito");
+        // Limpiar el carrito y redirigir
+        localStorage.removeItem("cart");
+        setCart([]);
+        navigate("/dashboard/user/orders");
+        toast.success("Pedido realizado con éxito");
+      } else if (paymentMethod === "card") {
+        let cardToProcess = null;
+
+        if (auth.id && selectedCardId) {
+          // Si el usuario está logueado y seleccionó una tarjeta registrada
+          const { data: selectedCard } = await axios.get(`/api/credit-cards/${selectedCardId}`);
+          cardToProcess = selectedCard;
+        } else if (!auth.id && cardDetails) {
+          // Si el usuario no está logueado y llenó el formulario de tarjeta
+          cardToProcess = cardDetails;
+        }
+
+        if (!cardToProcess) {
+          toast.error("Por favor, selecciona una tarjeta o completa el formulario.");
+          setLoading(false);
+          return;
+        }
+        const formatDate = (dateString) => {
+          const [day, month, year] = dateString.split('/');
+          return `${year}-${month}-${day}`;  // Convertir a yyyy-MM-dd
+        };
+
+
+        // Validar la tarjeta
+        const cardResponse = await axios.post(`http://localhost:8081/api/credit-cards/validate`, {
+          ccNumber: cardToProcess.ccNumber,
+          ccDueDate: formatDate(cardToProcess.ccDueDate),
+          cvv: cardToProcess.cvv,
+        }, {
+          params: {
+            amount: parseFloat(cartTotal().replace(/[^0-9.-]+/g, ""))  // Enviando "amount" como query parameter
+          }
+      });
+      
+
+        if (cardResponse.data !== "Aprobado") {
+          toast.error("La tarjeta no fue aprobada");
+          setLoading(false);
+          return;
+        }
+
+        // Crear el pedido
+        const orderPayload = {
+          customerId,
+          orderDetails: cart.map((product) => ({
+            productId: product.id,
+            qty: product.quantity,
+          })),
+          paymentMethod,
+          cardData: cardToProcess,
+          total: parseFloat(cartTotal().replace(/[^0-9.-]+/g, "")),
+          status: "Creado",
+        };
+
+        await instance.post("/orders/checkout", orderPayload);
+
+        // Procesar el pago
+        await axios.post(`http://localhost:8081/api/credit-cards/process`, {
+          ccNumber: cardToProcess.ccNumber,
+          ccDueDate: formatDate( cardToProcess.ccDueDate),
+          cvv: cardToProcess.cvv
+        }, {
+          params: {
+            amount: parseFloat(cartTotal().replace(/[^0-9.-]+/g, ""))  // Enviando "amount" como query parameter
+          }
+      });
+
+        // Limpiar el carrito y redirigir
+        localStorage.removeItem("cart");
+        setCart([]);
+        navigate("/dashboard/user/orders");
+        toast.success("Pedido realizado con éxito");
+      }
     } catch (err) {
       console.error("Error durante el proceso de pago", err);
       toast.error("Hubo un error en el proceso de pago.");
@@ -84,12 +158,13 @@ export default function UserCartSidebar({ cartTotal }) {
     }
   };
 
+  // Verifica si el formulario es válido para habilitar el botón de compra
   const isFormValid = () => {
     if (!auth.id && !anonymous) return false;
     if (anonymous && (!names || !lastNames || !phoneNumber || !address || !email)) {
       return false;
     }
-    if (paymentMethod === "card" && !auth.id && !cardData) {
+    if (paymentMethod === "card" && !auth.id && !cardDetails) {
       return false;
     }
     return true;
@@ -103,6 +178,24 @@ export default function UserCartSidebar({ cartTotal }) {
       setShowCardForm(false);
     }
   }, [paymentMethod]);
+
+  // Renderizar la selección de tarjetas registradas
+  const renderCardSelection = () => {
+    return (
+      <select
+        onChange={(e) => setSelectedCardId(e.target.value)} // Actualizar tarjeta seleccionada
+        value={selectedCardId || ""}
+        className="form-select mb-3"
+      >
+        <option value="">Selecciona una tarjeta</option>
+        {cards.map((card) => (
+          <option key={card.id} value={card.id}>
+            **** **** **** {card.ccNumber.slice(-4)}
+          </option>
+        ))}
+      </select>
+    );
+  };
 
   return (
     <div className="col-md-4 mb-5">
@@ -214,12 +307,15 @@ export default function UserCartSidebar({ cartTotal }) {
 
         {/* Mostrar formulario de tarjeta solo si se selecciona tarjeta */}
         {showCardForm && !auth.id && (
-          <CardFormAnonimo onSubmit={handleBuy} />
+          <CardFormAnonimo onChange={(details) => setCardDetails(details)} />
         )}
+
+        {/* Mostrar tarjetas registradas para usuarios logueados */}
+        {showCardForm && auth.id && cards.length > 0 && renderCardSelection()}
       </div>
 
       <button
-        onClick={() => handleBuy()}
+        onClick={handleBuy}
         className="btn btn-primary col-12 mt-3"
         disabled={!isFormValid() || loading}
       >
