@@ -45,14 +45,16 @@ const handleBuy = async () => {
 
     let cardToProcess = null;
     const formatDate = (dateString) => {
-      const [day, month, year] = dateString.split('/');
-      return `${year}-${month}-${day}`;  // Convertir a yyyy-MM-dd
-    }; 
+      const [day, month, year] = dateString.split("/");
+      return `${year}-${month}-${day}`; // Convertir a yyyy-MM-dd
+    };
 
     if (paymentMethod === "card") {
       if (auth.id && selectedCardId) {
         // Si el usuario está logueado y seleccionó una tarjeta registrada
-        const { data: selectedCard } = await axios.get(`/api/credit-cards/${selectedCardId}`);
+        const { data: selectedCard } = await axios.get(
+          `/api/credit-cards/${selectedCardId}`
+        );
         cardToProcess = selectedCard;
       } else if (!auth.id && cardDetails) {
         // Si el usuario no está logueado y llenó el formulario de tarjeta
@@ -60,23 +62,27 @@ const handleBuy = async () => {
       }
 
       if (!cardToProcess) {
-        toast.error("Por favor, selecciona una tarjeta o completa el formulario.");
+        toast.error(
+          "Por favor, selecciona una tarjeta o completa el formulario."
+        );
         setLoading(false);
         return;
       }
 
-      
-
       // Validar la tarjeta
-      const cardResponse = await axios.post(`http://localhost:8081/api/credit-cards/validate`, {
-        ccNumber: cardToProcess.ccNumber,
-        ccDueDate: formatDate(cardToProcess.ccDueDate),
-        cvv: cardToProcess.cvv,
-      }, {
-        params: {
-          amount: parseFloat(cartTotal().replace(/[^0-9.-]+/g, ""))  // Enviando "amount" como query parameter
+      const cardResponse = await axios.post(
+        `http://localhost:8081/api/credit-cards/validate`,
+        {
+          ccNumber: cardToProcess.ccNumber,
+          ccDueDate: formatDate(cardToProcess.ccDueDate),
+          cvv: cardToProcess.cvv,
+        },
+        {
+          params: {
+            amount: parseFloat(cartTotal().replace(/[^0-9.-]+/g, "")), // Enviando "amount" como query parameter
+          },
         }
-      });
+      );
 
       if (cardResponse.data !== "Aprobado") {
         toast.error("La tarjeta no fue aprobada");
@@ -119,7 +125,6 @@ const handleBuy = async () => {
       setCart([]);
       navigate("/dashboard/user/orders");
       toast.success("Pedido realizado con éxito");
-      
     } else if (paymentMethod === "card") {
       // Crear el pedido
       const orderPayload = {
@@ -137,15 +142,19 @@ const handleBuy = async () => {
       await instance.post("/orders/checkout", orderPayload);
 
       // Procesar el pago
-      await axios.post(`http://localhost:8081/api/credit-cards/process`, {
-        ccNumber: cardToProcess.ccNumber,
-        ccDueDate: formatDate(cardToProcess.ccDueDate),
-        cvv: cardToProcess.cvv,
-      }, {
-        params: {
-          amount: parseFloat(cartTotal().replace(/[^0-9.-]+/g, ""))  // Enviando "amount" como query parameter
+      await axios.post(
+        `http://localhost:8081/api/credit-cards/process`,
+        {
+          ccNumber: cardToProcess.ccNumber,
+          ccDueDate: formatDate(cardToProcess.ccDueDate),
+          cvv: cardToProcess.cvv,
+        },
+        {
+          params: {
+            amount: parseFloat(cartTotal().replace(/[^0-9.-]+/g, "")), // Enviando "amount" como query parameter
+          },
         }
-      });
+      );
 
       // Limpiar el carrito y redirigir
       localStorage.removeItem("cart");
