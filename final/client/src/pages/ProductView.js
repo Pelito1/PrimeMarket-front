@@ -124,7 +124,7 @@ export default function ProductView() {
                   <FaBarcode /> Marca: {product?.brand?.name}
                 </p>
                 <p className="mb-1">
-                  <FaWarehouse /> Disponible: {product.stock}{" "}
+                  <FaWarehouse /> Disponible: {product.stock}{" unidades "}
                   {product.stock > 0 ? <FaCheck /> : <FaTimes />}
                 </p>
               </div>

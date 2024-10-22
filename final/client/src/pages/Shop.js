@@ -7,10 +7,12 @@ import { prices } from "../prices";
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
-  const [radio, setRadio] = useState([0, 10000]); // Estado inicial: "Todos"
+  const [radio, setRadio] = useState([0, 1000000]); // Estado inicial: "Todos"
   const [page, setPage] = useState(1); // Página actual
   const [totalProducts, setTotalProducts] = useState(0); // Total de productos
   const size = 52; // Tamaño de cada página
+
+  const pageLimit = 5; // Máximo de páginas visibles
 
   // Cargar productos al cambiar de filtro o página
   useEffect(() => {
@@ -42,6 +44,29 @@ export default function Shop() {
       setPage(newPage);
       window.scrollTo({ top: 0, behavior: 'smooth' }); // Deslizar hacia arriba
     }
+  };
+
+  const totalPages = Math.ceil(totalProducts / size);
+
+  // Generar la lista de páginas a mostrar
+  const getVisiblePages = () => {
+    let pages = [];
+    const startPage = Math.max(1, page - Math.floor(pageLimit / 2));
+    const endPage = Math.min(totalPages, page + Math.floor(pageLimit / 2));
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (startPage > 1) {
+      pages.unshift('...');
+    }
+
+    if (endPage < totalPages) {
+      pages.push('...');
+    }
+
+    return pages;
   };
 
   return (
@@ -88,28 +113,22 @@ export default function Shop() {
                   </button>
                 </li>
 
-                {Array.from(
-                  { length: Math.ceil(totalProducts / size) },
-                  (_, index) => (
-                    <li
-                      key={index + 1}
-                      className={`page-item ${page === index + 1 ? "active" : ""}`}
+                {getVisiblePages().map((p, index) => (
+                  <li
+                    key={index}
+                    className={`page-item ${page === p ? "active" : ""} ${p === '...' ? 'disabled' : ''}`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => p !== '...' && handlePageChange(p)}
                     >
-                      <button
-                        className="page-link"
-                        onClick={() => handlePageChange(index + 1)}
-                        
-                      >
-                        {index + 1}
-                      </button>
-                    </li>
-                  )
-                )}
+                      {p}
+                    </button>
+                  </li>
+                ))}
 
                 <li
-                  className={`page-item ${
-                    page === Math.ceil(totalProducts / size) ? "disabled" : ""
-                  }`}
+                  className={`page-item ${page === totalPages ? "disabled" : ""}`}
                 >
                   <button className="page-link" onClick={() => handlePageChange(page + 1)}>
                     Next

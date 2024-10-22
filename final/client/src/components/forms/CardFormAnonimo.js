@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 export default function CardFormAnonimo({ onSubmit }) {
   const [details, setDetails] = useState({
-    type: "",
+    cvv: "",
     ccNumber: "",
     ccDueDate: "",
     ccName: "",
@@ -34,14 +34,7 @@ export default function CardFormAnonimo({ onSubmit }) {
   return (
     <form className="mt-3" onSubmit={handleSubmit}>
       <h5>Información de Tarjeta</h5>
-      <input
-        type="text"
-        className="form-control mb-2"
-        placeholder="Tipo de Tarjeta"
-        value={details.type}
-        onChange={(e) => handleInputChange("type", e.target.value)}
-        required
-      />
+     
       <input
         type="text"
         className="form-control mb-2"
@@ -61,6 +54,15 @@ export default function CardFormAnonimo({ onSubmit }) {
         onBlur={handleStatusUpdate} // Actualiza el estado al perder el foco
         required
       />
+       <input
+        type="text"
+        className="form-control mb-2"
+        placeholder="CVV"
+        value={details.cvv}
+        onChange={(e) => handleInputChange("cvv", e.target.value.replace(/\D/g, "").slice(0, 3))} // Solo permite 3 números
+        required
+      />
+
       <input
         type="text"
         className="form-control mb-2"

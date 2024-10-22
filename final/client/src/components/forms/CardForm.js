@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 export default function CardForm({ cardDetails, setCardDetails, isEdit, customerId }) {
   const [details, setDetails] = useState({
-    type: "",
+    cvv: "",
     ccNumber: "",
     ccDueDate: "",
     ccName: "",
@@ -45,14 +45,6 @@ export default function CardForm({ cardDetails, setCardDetails, isEdit, customer
       <input
         type="text"
         className="form-control mb-2"
-        placeholder="Tipo de Tarjeta"
-        value={details.type}
-        onChange={(e) => handleInputChange("type", e.target.value)}
-        required
-      />
-      <input
-        type="text"
-        className="form-control mb-2"
         placeholder="Número de Tarjeta"
         value={details.ccNumber}
         onChange={(e) =>
@@ -69,6 +61,15 @@ export default function CardForm({ cardDetails, setCardDetails, isEdit, customer
         onBlur={handleStatusUpdate} // Actualiza el estado al perder el foco
         required
       />
+      <input
+        type="text"
+        className="form-control mb-2"
+        placeholder="CVV"
+        value={details.cvv}
+        onChange={(e) => handleInputChange("cvv", e.target.value.replace(/\D/g, "").slice(0, 3))} // Solo permite 3 números
+        required
+      />
+
       <input
         type="text"
         className="form-control mb-2"

@@ -95,6 +95,15 @@ export default function UserCartSidebar({ cartTotal }) {
     return true;
   };
 
+  // Detectar si el método de pago es tarjeta y controlar el formulario de tarjeta
+  useEffect(() => {
+    if (paymentMethod === "card") {
+      setShowCardForm(true);
+    } else {
+      setShowCardForm(false);
+    }
+  }, [paymentMethod]);
+
   return (
     <div className="col-md-4 mb-5">
       <h4>Resumen de tu carrito</h4>
@@ -143,7 +152,12 @@ export default function UserCartSidebar({ cartTotal }) {
                 className="form-control mb-2"
                 placeholder="Teléfono"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, ""); // Eliminar cualquier carácter no numérico
+                  if (value.length <= 8) {
+                    setPhoneNumber(value); // Solo permitir hasta 8 dígitos
+                  }
+                }}
                 required
               />
               <input
@@ -192,15 +206,13 @@ export default function UserCartSidebar({ cartTotal }) {
             type="radio"
             name="payment"
             value="card"
-            onChange={() => {
-              setPaymentMethod("card");
-              setShowCardForm(true);
-            }}
+            onChange={() => setPaymentMethod("card")}
             required
           />
           <label className="ms-2">Tarjeta de crédito / débito</label>
         </div>
 
+        {/* Mostrar formulario de tarjeta solo si se selecciona tarjeta */}
         {showCardForm && !auth.id && (
           <CardFormAnonimo onSubmit={handleBuy} />
         )}

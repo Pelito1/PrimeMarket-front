@@ -38,7 +38,7 @@ export default function SeasonDetail() {
       <Jumbotron title="PrimeMarket" subTitle="Bienvenidos a nuestra Tienda en línea" />
     <div className="container">
       {season && (
-        <h1 className="text-center my-4"> Productos en Temporada {season.name}</h1>
+        <h1 className="text-center my-4"> Productos en Temporada - {season.name}</h1>
         
       )}
       

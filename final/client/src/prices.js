@@ -27,6 +27,6 @@ export const prices = [
   {
     _id: 5,
     name: "Más de Q200",
-    array: [200,10000],
+    array: [200,50000],
   },
 ];

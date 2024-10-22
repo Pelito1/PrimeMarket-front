@@ -44,11 +44,6 @@ export default function UserDashboard() {
     setSelectedCard(null);
   };
 
-  const handleCardSelect = (card) => {
-    setSelectedCardId(card.id);
-    localStorage.setItem("selectedCardId", card.id);
-    setIsWalletModalVisible(false); // Cerrar modal después de seleccionar
-  };
 
   const handleEdit = (card) => {
     setSelectedCard(card);
@@ -136,9 +131,7 @@ export default function UserDashboard() {
           <div key={card.id} className="d-flex align-items-center mb-2">
             <FaCreditCard size={20} className="me-2" />
             <span>**** **** **** {card.ccNumber.slice(-4)}</span>
-            <Button className="ms-auto" onClick={() => handleCardSelect(card)}>
-              Seleccionar
-            </Button>
+            
             <Button
               className="ms-2"
               icon={<FaEdit />}
