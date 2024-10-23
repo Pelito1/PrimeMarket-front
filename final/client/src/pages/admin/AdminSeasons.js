@@ -164,7 +164,7 @@ export default function AdminSeasons() {
               />
               <input
                 type="text"
-                placeholder="Estado (A o I)"
+                placeholder="Estado (Activa = 1)"
                 className="form-control mb-2"
                 value={newSeason.status}
                 onChange={(e) =>
